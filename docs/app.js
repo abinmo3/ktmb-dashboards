@@ -128,15 +128,17 @@ function renderPicks(hourValues){
 }
 
 async function loadStations(){
-  stations = await (await fetch("./data/stations.json")).json();
+  stations = await fetchJson("stations.json");
   originEl.innerHTML = `<option value="">Origin</option>` +
     stations.map(s=>`<option value="${s.name}">${s.name}</option>`).join("");
 }
 
+
 async function loadMeta(){
-  meta = await (await fetch("./data/meta.json")).json();
+  meta = await fetchJson("meta.json");
   metaEl.textContent = `Latest ridership date: ${meta.latest_date} · Last refresh: ${meta.generated_at}`;
 }
+
 
 async function onOriginChange(){
   const origin = originEl.value;
@@ -148,7 +150,8 @@ async function onOriginChange(){
   if(!origin) return;
 
   const slug = slugify(origin);
-  byOrigin = await (await fetch(`./data/by_origin/${slug}.json`)).json();
+  byOrigin = await fetchJson(`by_origin/${slug}.json`);
+
 
   const destNames = Object.keys(byOrigin.destinations).sort();
   destEl.innerHTML = `<option value="">Destination</option>` +
@@ -193,12 +196,19 @@ async function refreshLiveLayer() {
     const feed = FeedMessageType.decode(buf);
 
     const vehicles = (feed.entity || [])
-      .map(e => e.vehicle)
-      .filter(v => v && v.position && Number.isFinite(v.position.latitude) && Number.isFinite(v.position.longitude));
+  .map(e => e.vehicle)
+  .filter(v => v && v.position && Number.isFinite(v.position.latitude) && Number.isFinite(v.position.longitude))
+  .map(v => ({
+    lat: v.position.latitude,
+    lon: v.position.longitude
+  }));
 
-    if (liveEl) {
-      liveEl.textContent = `Live trains: ${vehicles.length} active · updated ${new Date().toLocaleTimeString()}`;
-    }
+updateTrainsOnMap(vehicles);
+
+if (liveEl) {
+  liveEl.textContent = `Live trains: ${vehicles.length} active · updated ${new Date().toLocaleTimeString()}`;
+}
+
   } catch (e) {
     console.error(e);
     if (liveEl) liveEl.textContent = "Live trains: unavailable";

@@ -352,5 +352,12 @@ async function refreshLiveLayer() {
   }
 
   drawHeatmap(new Array(24).fill(NaN));
-  initLiveLayer();
+
+// render map immediately if it's open by default (recommended)
+if (mapDetails && mapDetails.open) {
+  await renderRoutesOnMap();
+}
+
+initLiveLayer();
+
 })();

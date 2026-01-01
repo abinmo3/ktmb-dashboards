@@ -2,6 +2,9 @@ const originEl = document.getElementById("origin");
 const destEl = document.getElementById("destination");
 const metaEl = document.getElementById("meta");
 const picksEl = document.getElementById("picks");
+const liveEl = document.getElementById("live");
+let FeedMessageType = null;
+
 const canvas = document.getElementById("heatmap");
 const ctx = canvas.getContext("2d");
 
@@ -141,11 +144,47 @@ async function onDestChange(){
   metaEl.textContent = `Latest ridership date: ${byOrigin.latest_date} · Origin: ${byOrigin.origin} → Destination: ${dest}`;
 }
 
+async function initLiveLayer() {
+  try {
+    const root = await protobuf.load("./vendor/gtfs-realtime.proto");
+    FeedMessageType = root.lookupType("transit_realtime.FeedMessage");
+
+    await refreshLiveLayer();
+    setInterval(refreshLiveLayer, 30000);
+  } catch (e) {
+    console.error(e);
+    if (liveEl) liveEl.textContent = "Live trains: unavailable";
+  }
+}
+
+async function refreshLiveLayer() {
+  try {
+    const url = "https://api.data.gov.my/gtfs-realtime/vehicle-position/ktmb";
+    const res = await fetch(url, { cache: "no-store" });
+    const buf = new Uint8Array(await res.arrayBuffer());
+
+    const feed = FeedMessageType.decode(buf);
+
+    const vehicles = (feed.entity || [])
+      .map(e => e.vehicle)
+      .filter(v => v && v.position && Number.isFinite(v.position.latitude) && Number.isFinite(v.position.longitude));
+
+    if (liveEl) {
+      liveEl.textContent = `Live trains: ${vehicles.length} active · updated ${new Date().toLocaleTimeString()}`;
+    }
+  } catch (e) {
+    console.error(e);
+    if (liveEl) liveEl.textContent = "Live trains: unavailable";
+  }
+}
+
 (async function init(){
   await loadStations();
   await loadMeta();
   drawHeatmap(new Array(24).fill(NaN));
   originEl.addEventListener("change", onOriginChange);
   destEl.addEventListener("change", onDestChange);
+
+    initLiveLayer();
 })();
 

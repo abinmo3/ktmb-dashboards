@@ -43,14 +43,21 @@ def build_service(service_key: str, url: str, out_dir: Path):
     latest_dt = df["date"].max().normalize()
     latest_date = latest_dt.date().isoformat()
 
-    today_df = df[df["date"] == latest_dt]
-    base_df = df[df["date"] < latest_dt]
-    if base_df.empty:
-        base_df = df  # fallback
+   today_df = df[df["date"] == latest_dt]
+base_df = df[df["date"] < latest_dt]
+if base_df.empty:
+    base_df = df  # fallback
 
-    # Aggregate
-    today_g = today_df.groupby(["origin", "destination", "hour"])["ridership"].sum()
-    base_g = base_df.groupby(["origin", "destination", "hour"])["ridership"].mean()
+# 730-day baseline (≈ 24 months) excluding latest day
+cutoff_730 = latest_dt - pd.Timedelta(days=730)
+base_730_df = df[(df["date"] < latest_dt) & (df["date"] >= cutoff_730)]
+if base_730_df.empty:
+    base_730_df = base_df  # fallback to whatever history exists
+
+# Aggregate
+today_g = today_df.groupby(["origin", "destination", "hour"])["ridership"].sum()
+base_g = base_df.groupby(["origin", "destination", "hour"])["ridership"].mean()
+base_730_g = base_730_df.groupby(["origin", "destination", "hour"])["ridership"].mean()
 
     # Stations list
     stations = sorted(set(df["origin"].dropna().unique()).union(set(df["destination"].dropna().unique())))
@@ -77,6 +84,11 @@ def build_service(service_key: str, url: str, out_dir: Path):
             base_o = base_g.xs(origin, level=0)      # index: (destination, hour)
         except KeyError:
             base_o = None
+            try:
+    base_730_o = base_730_g.xs(origin, level=0)  # index: (destination, hour)
+except KeyError:
+    base_730_o = None
+
         try:
             today_o = today_g.xs(origin, level=0)    # index: (destination, hour)
         except KeyError:
@@ -98,6 +110,15 @@ def build_service(service_key: str, url: str, out_dir: Path):
                     baseline_24 = series_to_24(b)
                 except KeyError:
                     pass
+                    # baseline_730 (last ~24 months)
+baseline_730_24 = [None] * 24
+if base_730_o is not None:
+    try:
+        b730 = base_730_o.xs(dest, level=0)  # index: hour
+        baseline_730_24 = series_to_24(b730)
+    except KeyError:
+        pass
+
 
             # today
             today_24 = [None] * 24
@@ -108,7 +129,12 @@ def build_service(service_key: str, url: str, out_dir: Path):
                 except KeyError:
                     pass
 
-            destinations[dest] = {"baseline": baseline_24, "today": today_24}
+           destinations[dest] = {
+    "baseline": baseline_24,
+    "baseline_730": baseline_730_24,
+    "today": today_24
+}
+
 
         payload = {
             "service": service_key,

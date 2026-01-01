@@ -54,7 +54,7 @@ function quantile(sorted, q){
 
 // Map value -> bucket 0..3 using quartiles
 function bucketize(values){
-  const v = values.filter(x => Number.isFinite(x)).slice().sort((a,b)=>a-b);
+  const v = values.filter(x => Number.isFe(x)).slice().sort((a,b)=>a-b);
   if (v.length < 5) return values.map(_ => 1); // fallback
   const q25 = quantile(v, 0.25);
   const q50 = quantile(v, 0.50);
@@ -279,12 +279,20 @@ function updateTrainsOnMap(vehicles){
 }
 
 (async function init(){
+  // Service change (if service selector exists)
+  if(serviceEl) serviceEl.addEventListener("change", onServiceChange);
+
+  // Map toggle (only redraw routes when user opens it)
+  const details = document.getElementById("liveMapDetails");
+  if(details) details.addEventListener("toggle", renderRoutesOnMap);
+
   await loadStations();
   await loadMeta();
   drawHeatmap(new Array(24).fill(NaN));
   originEl.addEventListener("change", onOriginChange);
   destEl.addEventListener("change", onDestChange);
 
-    initLiveLayer();
+  initLiveLayer();
 })();
+
 

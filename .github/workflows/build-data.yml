@@ -28,10 +28,14 @@ jobs:
         run: |
           python scripts/build_data.py
 
-      - name: Commit generated data
+            - name: Commit generated data
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+
           git add docs/data
           git commit -m "Update crowd data" || echo "No changes"
-          git push
+
+          # ✅ pull latest main and rebase, then push
+          git pull --rebase origin main
+          git push origin main

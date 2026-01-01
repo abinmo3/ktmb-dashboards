@@ -17,10 +17,16 @@
 </head>
 <body>
   <div class="card">
-    <div class="row">
-      <select id="origin"></select>
-      <select id="destination" disabled></select>
-    </div>
+   <div class="row">
+  <select id="service">
+    <option value="komuter">Komuter (Klang Valley)</option>
+    <option value="komuter_utara">Komuter Utara (North)</option>
+  </select>
+
+  <select id="origin"></select>
+  <select id="destination" disabled></select>
+</div>
+
 
     <div id="meta">Loading data…</div>
     <div id="live" style="color:#666;font-size:12px;margin-top:6px"></div>

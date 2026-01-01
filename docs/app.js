@@ -4,6 +4,32 @@ const metaEl = document.getElementById("meta");
 const picksEl = document.getElementById("picks");
 const liveEl = document.getElementById("live");
 let FeedMessageType = null;
+// --- Service selector (Komuter vs Komuter Utara) ---
+const serviceEl = document.getElementById("service");
+let currentService = serviceEl?.value || "komuter";
+
+function dataRoot(){
+  // komuter uses /data, komuter_utara uses /data/komuter_utara
+  return currentService === "komuter" ? "./data" : `./data/${currentService}`;
+}
+
+async function fetchJson(rel){
+  const res = await fetch(`${dataRoot()}/${rel}`, { cache: "no-store" });
+  if(!res.ok) throw new Error(`Fetch failed: ${rel} (${res.status})`);
+  return res.json();
+}
+
+// --- Map globals (Leaflet) ---
+let map = null;
+let routeLayer = null;
+let trainLayer = null;
+let bbox = null;
+
+function inBbox(lat, lon, b){
+  if(!b) return true;
+  return lat>=b.min_lat && lat<=b.max_lat && lon>=b.min_lon && lon<=b.max_lon;
+}
+
 
 const canvas = document.getElementById("heatmap");
 const ctx = canvas.getContext("2d");
@@ -176,6 +202,69 @@ async function refreshLiveLayer() {
   } catch (e) {
     console.error(e);
     if (liveEl) liveEl.textContent = "Live trains: unavailable";
+  }
+}
+async function onServiceChange(){
+  currentService = serviceEl.value;
+
+  byOrigin = null;
+  originEl.value = "";
+  destEl.disabled = true;
+  destEl.innerHTML = `<option value="">Destination</option>`;
+  picksEl.innerHTML = "";
+  drawHeatmap(new Array(24).fill(NaN));
+
+  await loadStations();
+  await loadMeta();
+
+  // if map is open, redraw routes for the new service
+  await renderRoutesOnMap();
+}
+
+// ----- Leaflet Map helpers -----
+function ensureMap(){
+  if(map) return;
+  map = L.map("map", { zoomControl: true });
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 18,
+    attribution: "© OpenStreetMap"
+  }).addTo(map);
+
+  routeLayer = L.layerGroup().addTo(map);
+  trainLayer = L.layerGroup().addTo(map);
+}
+
+async function renderRoutesOnMap(){
+  const details = document.getElementById("liveMapDetails");
+  if(!details || !details.open) return;
+
+  ensureMap();
+  routeLayer.clearLayers();
+
+  // load service-specific route lines + bbox
+  const routes = await fetchJson("gtfs_routes.json");
+  bbox = await fetchJson("bbox.json");
+
+  for(const r of routes){
+    L.polyline(r.coords, { weight: 4, opacity: 0.35 }).addTo(routeLayer);
+  }
+
+  map.fitBounds([
+    [bbox.min_lat, bbox.min_lon],
+    [bbox.max_lat, bbox.max_lon]
+  ], { padding: [10,10] });
+}
+
+function updateTrainsOnMap(vehicles){
+  if(!map || !trainLayer) return;
+  trainLayer.clearLayers();
+
+  const filtered = vehicles
+    .filter(v => inBbox(v.lat, v.lon, bbox));
+
+  for(const v of filtered){
+    L.circleMarker([v.lat, v.lon], { radius: 5, opacity: 1, fillOpacity: 0.8 }).addTo(trainLayer);
   }
 }
 

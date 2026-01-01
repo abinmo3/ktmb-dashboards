@@ -33,6 +33,64 @@ function inBbox(lat, lon, b){
 
 const canvas = document.getElementById("heatmap");
 const ctx = canvas.getContext("2d");
+// ===== Leaflet Map =====
+const mapDetails = document.getElementById("liveMapDetails");
+let map = null;
+let routeLayer = null;
+let trainLayer = null;
+
+function ensureMap(){
+  if (map) return;
+  map = L.map("map", { zoomControl: true });
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 18,
+    attribution: "© OpenStreetMap"
+  }).addTo(map);
+
+  routeLayer = L.layerGroup().addTo(map);
+  trainLayer = L.layerGroup().addTo(map);
+
+  // default view (KL area) so it never looks blank
+  map.setView([3.1390, 101.6869], 10);
+}
+
+function updateTrainsOnMap(vehicles){
+  if (!map || !trainLayer) return;
+  trainLayer.clearLayers();
+  for (const v of vehicles){
+    L.circleMarker([v.lat, v.lon], { radius: 5, fillOpacity: 0.8 }).addTo(trainLayer);
+  }
+}
+
+// Try draw routes if route JSON exists (safe even if not yet generated)
+async function renderRoutesOnMap(){
+  if (!mapDetails || !mapDetails.open) return;
+  ensureMap();
+
+  // Leaflet needs resize after <details> opens
+  setTimeout(() => map.invalidateSize(), 150);
+
+  routeLayer.clearLayers();
+
+  try {
+    // For now assumes Komuter routes at ./data/gtfs_routes.json
+    // (later we’ll make it service-aware)
+    const routes = await (await fetch("./data/gtfs_routes.json", { cache: "no-store" })).json();
+    for (const r of routes){
+      L.polyline(r.coords, { weight: 4, opacity: 0.35 }).addTo(routeLayer);
+    }
+  } catch (e) {
+    // If you haven't generated route json yet, map will still show tiles.
+    console.log("No route file yet: /data/gtfs_routes.json");
+  }
+}
+
+// When user opens the map
+if (mapDetails){
+  mapDetails.addEventListener("toggle", renderRoutesOnMap);
+}
+
 
 let stations = [];
 let byOrigin = null;

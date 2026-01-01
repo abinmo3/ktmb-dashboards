@@ -26,11 +26,17 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pandas pyarrow
+          pip install pandas pyarrow requests
+
 
       - name: Build data
         run: |
           python scripts/build_data.py
+
+           - name: Build GTFS route lines
+        run: |
+          python scripts/build_gtfs_routes.py
+     
 
       - name: Commit generated data
         run: |

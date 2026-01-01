@@ -40,24 +40,29 @@ def build_service(service_key: str, url: str, out_dir: Path):
     df["date"] = pd.to_datetime(df["date"])
     df["hour"] = df["time"].astype(str).str.slice(0, 2).astype(int)
 
-    latest_dt = df["date"].max().normalize()
+        latest_dt = df["date"].max().normalize()
     latest_date = latest_dt.date().isoformat()
 
-   today_df = df[df["date"] == latest_dt]
-base_df = df[df["date"] < latest_dt]
-if base_df.empty:
-    base_df = df  # fallback
+    # optional visibility: how much history exists in the parquet
+    earliest_dt = df["date"].min().normalize()
+    earliest_date = earliest_dt.date().isoformat()
+    days_available = int((latest_dt - earliest_dt).days) + 1
 
-# 730-day baseline (≈ 24 months) excluding latest day
-cutoff_730 = latest_dt - pd.Timedelta(days=730)
-base_730_df = df[(df["date"] < latest_dt) & (df["date"] >= cutoff_730)]
-if base_730_df.empty:
-    base_730_df = base_df  # fallback to whatever history exists
+    today_df = df[df["date"] == latest_dt]
+    base_df = df[df["date"] < latest_dt]
+    if base_df.empty:
+        base_df = df  # fallback
 
-# Aggregate
-today_g = today_df.groupby(["origin", "destination", "hour"])["ridership"].sum()
-base_g = base_df.groupby(["origin", "destination", "hour"])["ridership"].mean()
-base_730_g = base_730_df.groupby(["origin", "destination", "hour"])["ridership"].mean()
+    # 730-day baseline (≈ 24 months) excluding latest day
+    cutoff_730 = latest_dt - pd.Timedelta(days=730)
+    base_730_df = df[(df["date"] < latest_dt) & (df["date"] >= cutoff_730)]
+    if base_730_df.empty:
+        base_730_df = base_df  # fallback to whatever history exists
+
+    # Aggregate
+    today_g = today_df.groupby(["origin", "destination", "hour"])["ridership"].sum()
+    base_g = base_df.groupby(["origin", "destination", "hour"])["ridership"].mean()
+    base_730_g = base_730_df.groupby(["origin", "destination", "hour"])["ridership"].mean()
 
     # Stations list
     stations = sorted(set(df["origin"].dropna().unique()).union(set(df["destination"].dropna().unique())))
@@ -65,12 +70,15 @@ base_730_g = base_730_df.groupby(["origin", "destination", "hour"])["ridership"]
         json.dump([{"name": s} for s in stations], f, ensure_ascii=False)
 
     # Meta
-    meta = {
+        meta = {
         "service": service_key,
         "latest_date": latest_date,
+        "earliest_date": earliest_date,
+        "days_available": days_available,
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
         "source": url,
     }
+
     with open(out_dir / "meta.json", "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False)
 

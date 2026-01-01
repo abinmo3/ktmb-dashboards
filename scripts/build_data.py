@@ -40,8 +40,10 @@ def build_service(service_key: str, url: str, out_dir: Path):
     df["date"] = pd.to_datetime(df["date"])
     df["hour"] = df["time"].astype(str).str.slice(0, 2).astype(int)
 
-        latest_dt = df["date"].max().normalize()
+    latest_dt = df["date"].max().normalize()
     latest_date = latest_dt.date().isoformat()
+
+
 
     # optional visibility: how much history exists in the parquet
     earliest_dt = df["date"].min().normalize()

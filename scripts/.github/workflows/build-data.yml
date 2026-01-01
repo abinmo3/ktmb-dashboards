@@ -1,4 +1,0 @@
-- name: Build data
-  run: |
-    python scripts/build_data.py
-

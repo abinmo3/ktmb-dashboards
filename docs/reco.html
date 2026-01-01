@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KTM Komuter – Best Times</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:0;padding:0;background:transparent;}
+    .card{max-width:980px;margin:0 auto;border:1px solid #eee;border-radius:14px;padding:14px;background:#fff;}
+    .row{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10px;align-items:center;}
+    select{width:100%;min-width:0;padding:10px;border-radius:10px;border:1px solid #ddd;}
+    .meta{color:#666;font-size:12px;margin-top:8px;display:flex;gap:10px;flex-wrap:wrap}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+    .box{border:1px solid #f0f0f0;border-radius:12px;padding:12px}
+    .title{font-weight:700;margin:0 0 6px}
+    .line{font-size:14px}
+    .hint{color:#666;font-size:12px;margin-top:6px}
+    @media (max-width: 640px){
+      .row{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="row">
+      <select id="service">
+        <option value="komuter">Komuter (Klang Valley)</option>
+        <option value="komuter_utara">Komuter Utara (North)</option>
+      </select>
+
+      <select id="origin"></select>
+      <select id="destination" disabled></select>
+    </div>
+
+    <div class="meta">
+      <div id="meta">Loading…</div>
+      <div id="live">Live trains: …</div>
+    </div>
+
+    <div class="grid">
+      <div class="box">
+        <div class="title">Latest day suggestion</div>
+        <div class="line" id="latestBest">Best: –</div>
+        <div class="line" id="latestAvoid">Avoid: –</div>
+        <div class="hint">Based on the latest available ridership day (not real-time crowd).</div>
+      </div>
+
+      <div class="box">
+        <div class="title">Typical (24 months) suggestion</div>
+        <div class="line" id="histBest">Best: –</div>
+        <div class="line" id="histAvoid">Avoid: –</div>
+        <div class="hint" id="histHint">Based on last 24 months hourly pattern (needs baseline_730).</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.4.0/dist/protobuf.min.js"></script>
+  <script src="./reco.js"></script>
+</body>
+</html>

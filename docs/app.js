@@ -1,1 +1,151 @@
+const originEl = document.getElementById("origin");
+const destEl = document.getElementById("destination");
+const metaEl = document.getElementById("meta");
+const picksEl = document.getElementById("picks");
+const canvas = document.getElementById("heatmap");
+const ctx = canvas.getContext("2d");
+
+let stations = [];
+let byOrigin = null;
+let meta = null;
+
+function slugify(s){
+  return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+}
+
+function hourLabel(h){ return String(h).padStart(2,"0")+":00"; }
+
+function quantile(sorted, q){
+  const pos = (sorted.length - 1) * q;
+  const base = Math.floor(pos);
+  const rest = pos - base;
+  if (sorted[base+1] === undefined) return sorted[base];
+  return sorted[base] + rest * (sorted[base+1] - sorted[base]);
+}
+
+// Map value -> bucket 0..3 using quartiles
+function bucketize(values){
+  const v = values.filter(x => Number.isFinite(x)).slice().sort((a,b)=>a-b);
+  if (v.length < 5) return values.map(_ => 1); // fallback
+  const q25 = quantile(v, 0.25);
+  const q50 = quantile(v, 0.50);
+  const q75 = quantile(v, 0.75);
+  return values.map(x => {
+    if (!Number.isFinite(x)) return 1;
+    if (x <= q25) return 0;
+    if (x <= q50) return 1;
+    if (x <= q75) return 2;
+    return 3;
+  });
+}
+
+function colorForBucket(b){
+  // Minimal palette (no library). Green -> red.
+  if (b === 0) return "#d9fbe5";
+  if (b === 1) return "#fff7cc";
+  if (b === 2) return "#ffe0cc";
+  return "#ffd1d1";
+}
+
+function drawHeatmap(hourValues){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const buckets = bucketize(hourValues);
+  const cellW = canvas.width / 24;
+  const cellH = 80;
+
+  // cells
+  for(let h=0; h<24; h++){
+    ctx.fillStyle = colorForBucket(buckets[h]);
+    ctx.fillRect(h*cellW, 20, cellW-2, cellH);
+  }
+
+  // hour labels (every 2 hours)
+  ctx.fillStyle = "#666";
+  ctx.font = "12px system-ui";
+  for(let h=0; h<24; h+=2){
+    ctx.fillText(hourLabel(h), h*cellW+2, 14);
+  }
+}
+
+function best3Windows(hourValues){
+  // Choose 3 lowest hours (ignore NaN)
+  const pairs = hourValues
+    .map((v,h)=>({h,v}))
+    .filter(o=>Number.isFinite(o.v));
+  pairs.sort((a,b)=>a.v-b.v);
+  return pairs.slice(0,3).map(o=>o.h);
+}
+
+function avoidWindows(hourValues){
+  const pairs = hourValues
+    .map((v,h)=>({h,v}))
+    .filter(o=>Number.isFinite(o.v));
+  pairs.sort((a,b)=>b.v-a.v);
+  return pairs.slice(0,2).map(o=>o.h); // top 2 busiest hours
+}
+
+function renderPicks(hourValues){
+  const best = best3Windows(hourValues);
+  const avoid = avoidWindows(hourValues);
+
+  const bestText = best.map(h=>`${hourLabel(h)}–${hourLabel(h+1)}`).join(", ");
+  const avoidText = avoid.map(h=>`${hourLabel(h)}–${hourLabel(h+1)}`).join(", ");
+
+  picksEl.innerHTML = `
+    <b>Best boarding windows (latest data):</b> ${bestText}<br/>
+    <b>Avoid if possible:</b> ${avoidText}
+  `;
+}
+
+async function loadStations(){
+  stations = await (await fetch("./data/stations.json")).json();
+  originEl.innerHTML = `<option value="">Origin</option>` +
+    stations.map(s=>`<option value="${s.name}">${s.name}</option>`).join("");
+}
+
+async function loadMeta(){
+  meta = await (await fetch("./data/meta.json")).json();
+  metaEl.textContent = `Latest ridership date: ${meta.latest_date} · Last refresh: ${meta.generated_at}`;
+}
+
+async function onOriginChange(){
+  const origin = originEl.value;
+  destEl.disabled = true;
+  destEl.innerHTML = `<option value="">Destination</option>`;
+  picksEl.innerHTML = "";
+  drawHeatmap(new Array(24).fill(NaN));
+
+  if(!origin) return;
+
+  const slug = slugify(origin);
+  byOrigin = await (await fetch(`./data/by_origin/${slug}.json`)).json();
+
+  const destNames = Object.keys(byOrigin.destinations).sort();
+  destEl.innerHTML = `<option value="">Destination</option>` +
+    destNames.map(d=>`<option value="${d}">${d}</option>`).join("");
+  destEl.disabled = false;
+}
+
+async function onDestChange(){
+  const dest = destEl.value;
+  if(!dest || !byOrigin) return;
+
+  // prefer “today” (latest date) if present, else baseline
+  const rec = byOrigin.destinations[dest];
+  const values = (rec.today && rec.today.length === 24) ? rec.today : rec.baseline;
+
+  drawHeatmap(values);
+  renderPicks(values);
+
+  metaEl.textContent = `Latest ridership date: ${byOrigin.latest_date} · Origin: ${byOrigin.origin} → Destination: ${dest}`;
+}
+
+(async function init(){
+  await loadStations();
+  await loadMeta();
+  drawHeatmap(new Array(24).fill(NaN));
+  originEl.addEventListener("change", onOriginChange);
+  destEl.addEventListener("change", onDestChange);
+})();
 

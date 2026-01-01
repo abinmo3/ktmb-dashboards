@@ -253,19 +253,17 @@ async function refreshLiveLayer() {
 
     const feed = FeedMessageType.decode(buf);
 
-    const vehicles = (feed.entity || [])
+   const vehicles = (feed.entity || [])
   .map(e => e.vehicle)
   .filter(v => v && v.position && Number.isFinite(v.position.latitude) && Number.isFinite(v.position.longitude))
-  .map(v => ({
-    lat: v.position.latitude,
-    lon: v.position.longitude
-  }));
+  .map(v => ({ lat: v.position.latitude, lon: v.position.longitude }));
 
 updateTrainsOnMap(vehicles);
 
 if (liveEl) {
   liveEl.textContent = `Live trains: ${vehicles.length} active · updated ${new Date().toLocaleTimeString()}`;
 }
+
 
   } catch (e) {
     console.error(e);

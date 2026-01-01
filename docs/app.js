@@ -159,7 +159,8 @@ async function initLiveLayer() {
 
 async function refreshLiveLayer() {
   try {
-    const url = "https://api.data.gov.my/gtfs-realtime/vehicle-position/ktmb";
+    const url = "https://ktmb-gtfs-proxy.abinmo3.workers.dev/";
+
     const res = await fetch(url, { cache: "no-store" });
     const buf = new Uint8Array(await res.arrayBuffer());
 

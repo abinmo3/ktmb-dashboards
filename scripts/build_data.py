@@ -89,7 +89,7 @@ def build_service(service_key: str, url: str, out_dir: Path):
     for origin in origins:
         origin_slug = slugify(origin)
 
-        # slice groups for this origin
+               # slice groups for this origin (IMPORTANT: spaces only, no tabs)
         try:
             base_o = base_g.xs(origin, level=0)      # index: (destination, hour)
         except KeyError:
@@ -100,12 +100,11 @@ def build_service(service_key: str, url: str, out_dir: Path):
         except KeyError:
             base_730_o = None
 
-
-
         try:
             today_o = today_g.xs(origin, level=0)    # index: (destination, hour)
         except KeyError:
             today_o = None
+
 
         dests = set()
         if base_o is not None:

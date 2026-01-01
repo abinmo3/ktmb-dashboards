@@ -1,98 +1,128 @@
-import os, json, re
-from datetime import datetime, timedelta
+from pathlib import Path
+from datetime import datetime, timezone
+import json
 import pandas as pd
 
-RIDERSHIP_URL = "https://storage.data.gov.my/transportation/ktmb/komuter_2025.parquet"
-# (Optional) GTFS Static ZIP endpoint:
-# https://api.data.gov.my/gtfs-static/ktmb  (ZIP)  :contentReference[oaicite:5]{index=5}
-
-OUT_DIR = "docs/data"
-BY_ORIGIN_DIR = os.path.join(OUT_DIR, "by_origin")
+SERVICES = {
+    # keep existing Komuter output at docs/data (so your current URLs still work)
+    "komuter": {
+        "url": "https://storage.data.gov.my/transportation/ktmb/komuter_2025.parquet",
+        "out_dir": Path("docs/data"),
+    },
+    # new service goes into a subfolder
+    "komuter_utara": {
+        "url": "https://storage.data.gov.my/transportation/ktmb/komuter_utara_2025.parquet",
+        "out_dir": Path("docs/data/komuter_utara"),
+    },
+}
 
 def slugify(s: str) -> str:
-    s = s.lower().strip()
+    import re
+    s = s.lower()
     s = re.sub(r"[^a-z0-9]+", "-", s)
-    return re.sub(r"(^-|-$)", "", s)
+    s = re.sub(r"(^-|-$)", "", s)
+    return s
 
-def main():
-    os.makedirs(OUT_DIR, exist_ok=True)
-    os.makedirs(BY_ORIGIN_DIR, exist_ok=True)
+def series_to_24(series_by_hour):
+    # series index = hour (0..23)
+    arr = [None] * 24
+    for h in range(24):
+        v = series_by_hour.get(h)
+        arr[h] = float(v) if v is not None else None
+    return arr
 
-    # Load parquet (recommended by dataset page) :contentReference[oaicite:6]{index=6}
-    df = pd.read_parquet(RIDERSHIP_URL)
+def build_service(service_key: str, url: str, out_dir: Path):
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "by_origin").mkdir(parents=True, exist_ok=True)
 
-    # Expect columns: date, time, origin, destination, ridership :contentReference[oaicite:7]{index=7}
+    # Expected schema: date, time (HH:MM), origin, destination, ridership
+    df = pd.read_parquet(url, columns=["date", "time", "origin", "destination", "ridership"])
     df["date"] = pd.to_datetime(df["date"])
-    df["hour"] = df["time"].str.slice(0,2).astype(int)
+    df["hour"] = df["time"].astype(str).str.slice(0, 2).astype(int)
 
-    latest_date = df["date"].max().date()
+    latest_dt = df["date"].max().normalize()
+    latest_date = latest_dt.date().isoformat()
 
-    # Keep last 8 weeks (adjust if you want faster builds)
-    start_date = pd.Timestamp(latest_date) - pd.Timedelta(days=56)
-    df_recent = df[df["date"] >= start_date].copy()
-
-    # "today" = latest_date
-    df_today = df_recent[df_recent["date"].dt.date == latest_date]
-    # baseline = mean of same weekday (excluding latest day)
-    weekday = pd.Timestamp(latest_date).weekday()
-    df_base = df_recent[
-        (df_recent["date"].dt.weekday == weekday) &
-        (df_recent["date"].dt.date != latest_date)
-    ]
+    today_df = df[df["date"] == latest_dt]
+    base_df = df[df["date"] < latest_dt]
+    if base_df.empty:
+        base_df = df  # fallback
 
     # Aggregate
-    today_agg = (df_today.groupby(["origin","destination","hour"])["ridership"]
-                 .sum().reset_index())
-    base_agg = (df_base.groupby(["origin","destination","hour"])["ridership"]
-                .mean().round(2).reset_index())
+    today_g = today_df.groupby(["origin", "destination", "hour"])["ridership"].sum()
+    base_g = base_df.groupby(["origin", "destination", "hour"])["ridership"].mean()
 
-    # stations list (from ridership station names)
-    stations = sorted(set(df["origin"].unique()) | set(df["destination"].unique()))
-    with open(os.path.join(OUT_DIR, "stations.json"), "w", encoding="utf-8") as f:
+    # Stations list
+    stations = sorted(set(df["origin"].dropna().unique()).union(set(df["destination"].dropna().unique())))
+    with open(out_dir / "stations.json", "w", encoding="utf-8") as f:
         json.dump([{"name": s} for s in stations], f, ensure_ascii=False)
 
-    # Build per-origin JSON files (lazy-loaded by the web card)
-    # Format:
-    # { origin, latest_date, destinations: { dest: {today:[24], baseline:[24]} } }
-    # Make baseline dict for quick lookup
-    base_key = {}
-    for r in base_agg.itertuples(index=False):
-        base_key[(r.origin, r.destination, int(r.hour))] = float(r.ridership)
+    # Meta
+    meta = {
+        "service": service_key,
+        "latest_date": latest_date,
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "source": url,
+    }
+    with open(out_dir / "meta.json", "w", encoding="utf-8") as f:
+        json.dump(meta, f, ensure_ascii=False)
 
-    # Group today's data by origin/destination
-    for origin, g0 in today_agg.groupby("origin"):
-        out = {
+    # Per-origin files
+    origins = sorted(set(df["origin"].dropna().unique()))
+    for origin in origins:
+        origin_slug = slugify(origin)
+
+        # slice groups for this origin
+        try:
+            base_o = base_g.xs(origin, level=0)      # index: (destination, hour)
+        except KeyError:
+            base_o = None
+        try:
+            today_o = today_g.xs(origin, level=0)    # index: (destination, hour)
+        except KeyError:
+            today_o = None
+
+        dests = set()
+        if base_o is not None:
+            dests |= set(base_o.index.get_level_values(0).unique())
+        if today_o is not None:
+            dests |= set(today_o.index.get_level_values(0).unique())
+
+        destinations = {}
+        for dest in sorted(dests):
+            # baseline
+            baseline_24 = [None] * 24
+            if base_o is not None:
+                try:
+                    b = base_o.xs(dest, level=0)  # index: hour
+                    baseline_24 = series_to_24(b)
+                except KeyError:
+                    pass
+
+            # today
+            today_24 = [None] * 24
+            if today_o is not None:
+                try:
+                    t = today_o.xs(dest, level=0)  # index: hour
+                    today_24 = series_to_24(t)
+                except KeyError:
+                    pass
+
+            destinations[dest] = {"baseline": baseline_24, "today": today_24}
+
+        payload = {
+            "service": service_key,
             "origin": origin,
-            "latest_date": str(latest_date),
-            "destinations": {}
+            "latest_date": latest_date,
+            "destinations": destinations,
         }
-        # for each destination under this origin
-        for dest, g1 in g0.groupby("destination"):
-            today_arr = [None]*24
-            base_arr = [None]*24
 
-            for r in g1.itertuples(index=False):
-                today_arr[int(r.hour)] = int(r.ridership)
+        with open(out_dir / "by_origin" / f"{origin_slug}.json", "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False)
 
-            # baseline fill
-            for h in range(24):
-                v = base_key.get((origin, dest, h))
-                base_arr[h] = v if v is not None else None
-
-            out["destinations"][dest] = {"today": today_arr, "baseline": base_arr}
-
-        fn = os.path.join(BY_ORIGIN_DIR, f"{slugify(origin)}.json")
-        with open(fn, "w", encoding="utf-8") as f:
-            json.dump(out, f, ensure_ascii=False)
-
-    # meta
-    with open(os.path.join(OUT_DIR, "meta.json"), "w", encoding="utf-8") as f:
-        json.dump({
-            "latest_date": str(latest_date),
-            "generated_at": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
-            "source": RIDERSHIP_URL
-        }, f, ensure_ascii=False)
+def main():
+    for key, spec in SERVICES.items():
+        build_service(key, spec["url"], spec["out_dir"])
 
 if __name__ == "__main__":
     main()
-

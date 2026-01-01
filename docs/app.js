@@ -247,11 +247,30 @@ function updateTrainsOnMap(vehicles){
   if(!map || !trainLayer) return;
 
   trainLayer.clearLayers();
+
   const filtered = vehicles.filter(v => inBbox(v.lat, v.lon));
+
   for(const v of filtered){
-    L.circleMarker([v.lat, v.lon], { radius: 5, fillOpacity: 0.8 }).addTo(trainLayer);
+    const title = v.routeId ? `Route: ${v.routeId}` : "KTMB train";
+    const timeText = v.timestamp ? new Date(v.timestamp * 1000).toLocaleTimeString() : "-";
+
+    const popupHtml = `
+      <b>${title}</b><br/>
+      Trip ID: ${v.tripId || "-"}<br/>
+      Vehicle ID: ${v.vehicleId || "-"}<br/>
+      Updated: ${timeText}<br/>
+      Speed: ${Number.isFinite(v.speed) ? v.speed.toFixed(1) + " m/s" : "-"}<br/>
+      Bearing: ${Number.isFinite(v.bearing) ? v.bearing.toFixed(0) + "°" : "-"}<br/>
+      Stop ID: ${v.stopId || "-"}<br/>
+      Stop seq: ${v.currentStopSequence ?? "-"}
+    `;
+
+    const marker = L.circleMarker([v.lat, v.lon], { radius: 6, fillOpacity: 0.85 });
+    marker.bindPopup(popupHtml);
+    marker.addTo(trainLayer);
   }
 }
+
 
 // =====================
 // Live trains (protobuf)
@@ -276,10 +295,29 @@ async function refreshLiveLayer() {
     const buf = new Uint8Array(await res.arrayBuffer());
     const feed = FeedMessageType.decode(buf);
 
-    const vehicles = (feed.entity || [])
-      .map(e => e.vehicle)
-      .filter(v => v && v.position && Number.isFinite(v.position.latitude) && Number.isFinite(v.position.longitude))
-      .map(v => ({ lat: v.position.latitude, lon: v.position.longitude }));
+   const vehicles = (feed.entity || [])
+  .map(e => e.vehicle)
+  .filter(v => v && v.position && Number.isFinite(v.position.latitude) && Number.isFinite(v.position.longitude))
+  .map(v => {
+    const trip = v.trip || {};
+    const veh = v.vehicle || {};
+    return {
+      lat: v.position.latitude,
+      lon: v.position.longitude,
+      speed: v.position.speed,
+      bearing: v.position.bearing,
+      timestamp: v.timestamp,
+
+      tripId: trip.tripId || trip.trip_id,
+      routeId: trip.routeId || trip.route_id,
+      startDate: trip.startDate || trip.start_date,
+
+      vehicleId: veh.id || veh.label,
+      stopId: v.stopId || v.stop_id,
+      currentStopSequence: v.currentStopSequence || v.current_stop_sequence,
+    };
+  });
+
 
     // update map dots
     updateTrainsOnMap(vehicles);

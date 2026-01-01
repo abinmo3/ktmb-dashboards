@@ -28,15 +28,13 @@ jobs:
         run: |
           pip install pandas pyarrow requests
 
-
-      - name: Build data
+      - name: Build crowd JSON
         run: |
           python scripts/build_data.py
 
-           - name: Build GTFS route lines
+      - name: Build GTFS route lines
         run: |
           python scripts/build_gtfs_routes.py
-     
 
       - name: Commit generated data
         run: |

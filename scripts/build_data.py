@@ -94,10 +94,13 @@ def build_service(service_key: str, url: str, out_dir: Path):
             base_o = base_g.xs(origin, level=0)      # index: (destination, hour)
         except KeyError:
             base_o = None
-            try:
-    base_730_o = base_730_g.xs(origin, level=0)  # index: (destination, hour)
-except KeyError:
-    base_730_o = None
+
+        try:
+            base_730_o = base_730_g.xs(origin, level=0)  # index: (destination, hour)
+        except KeyError:
+            base_730_o = None
+
+
 
         try:
             today_o = today_g.xs(origin, level=0)    # index: (destination, hour)

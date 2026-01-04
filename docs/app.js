@@ -29,6 +29,90 @@ let routeLayer = null;
 let trainLayer = null;
 let bbox = null;
 
+const STATE_BY_STATION_NAME = {
+  "Abdullah Hukum": "Kuala Lumpur",
+  "Angkasapuri": "Kuala Lumpur",
+  "Bandar Tasek Selatan": "Kuala Lumpur",
+  "Bank Negara": "Kuala Lumpur",
+  "Batu Caves": "Selangor",
+  "Batu Kentonmen": "Kuala Lumpur",
+  "Batu Tiga": "Selangor",
+  "Bangi": "Selangor",
+  "Batang Benar": "Negeri Sembilan",
+  "Batang Kali": "Selangor",
+  "Bukit Badak": "Selangor",
+  "Jalan Kastam": "Selangor",
+  "Jalan Templer": "Selangor",
+  "Kajang": "Selangor",
+  "Kajang 2": "Selangor",
+  "Kampung Batu": "Kuala Lumpur",
+  "Kampung Dato Harun": "Selangor",
+  "Kampung Raja Uda": "Selangor",
+  "Kepong": "Kuala Lumpur",
+  "Kepong Sentral": "Selangor",
+  "Klang": "Selangor",
+  "KL Sentral": "Kuala Lumpur",
+  "Kuala Kubu Bharu": "Selangor",
+  "Kuala Lumpur": "Kuala Lumpur",
+  "Kuang": "Selangor",
+  "Labu": "Negeri Sembilan",
+  "Midvalley": "Kuala Lumpur",
+  "Nilai": "Negeri Sembilan",
+  "Padang Jawa": "Selangor",
+  "Pantai Dalam": "Kuala Lumpur",
+  "Pelabuhan Klang Selatan": "Selangor",
+  "Petaling": "Selangor",
+  "Pulau Sebang (Tampin)": "Melaka",
+  "Putra": "Kuala Lumpur",
+  "Rasa": "Selangor",
+  "Rawang": "Selangor",
+  "Rembau": "Negeri Sembilan",
+  "Rengam": "Johor",
+  "Salak Selatan": "Kuala Lumpur",
+  "Segambut": "Kuala Lumpur",
+  "Senawang": "Negeri Sembilan",
+  "Sentul": "Kuala Lumpur",
+  "Seputeh": "Kuala Lumpur",
+  "Serdang": "Selangor",
+  "Seremban": "Negeri Sembilan",
+  "Serendah": "Selangor",
+  "Seri Setia": "Selangor",
+  "Setia Jaya": "Selangor",
+  "Shah Alam": "Selangor",
+  "Subang Jaya": "Selangor",
+  "Sungai Buloh": "Selangor",
+  "Sungai Gadut": "Negeri Sembilan",
+  "Taman Wahyu": "Kuala Lumpur",
+  "Tanjong Malim": "Perak",
+  "Telok Gadong": "Selangor",
+  "Telok Pulai": "Selangor",
+  "Tiroi": "Negeri Sembilan",
+  "UKM": "Selangor",
+  "Alor Setar": "Kedah",
+  "Anak Bukit": "Kedah",
+  "Arau": "Perlis",
+  "Bagan Serai": "Perak",
+  "Bukit Ketri": "Perlis",
+  "Bukit Mertajam": "Pulau Pinang",
+  "Bukit Tengah": "Pulau Pinang",
+  "Butterworth": "Pulau Pinang",
+  "Gurun": "Kedah",
+  "Ipoh": "Perak",
+  "Kamunting": "Perak",
+  "Kobah": "Kedah",
+  "Kodiang": "Kedah",
+  "Kuala Kangsar": "Perak",
+  "Nibong Tebal": "Pulau Pinang",
+  "Padang Besar": "Perlis",
+  "Padang Rengas": "Perak",
+  "Parit Buntar": "Perak",
+  "Simpang Ampat": "Pulau Pinang",
+  "Sungai Petani": "Kedah",
+  "Sungai Siput": "Perak",
+  "Taiping": "Perak",
+  "Tasek Gelugor": "Pulau Pinang"
+};
+
 // =====================
 // Helpers
 // =====================
@@ -46,6 +130,41 @@ async function fetchJson(rel){
   const res = await fetch(`${dataRoot()}/${rel}`, { cache: "no-store" });
   if(!res.ok) throw new Error(`Fetch failed: ${rel} (${res.status})`);
   return res.json();
+}
+
+function stationState(name){
+  return STATE_BY_STATION_NAME[name] || "Other";
+}
+
+function renderStationOptions(selectEl, names, placeholderLabel){
+  selectEl.innerHTML = "";
+  if (placeholderLabel) {
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = placeholderLabel;
+    selectEl.appendChild(placeholder);
+  }
+  const grouped = new Map();
+
+  for(const name of names){
+    const state = stationState(name);
+    if(!grouped.has(state)) grouped.set(state, []);
+    grouped.get(state).push(name);
+  }
+
+  const states = Array.from(grouped.keys()).sort((a,b)=>a.localeCompare(b));
+  for(const state of states){
+    const optgroup = document.createElement("optgroup");
+    optgroup.label = state;
+    const entries = grouped.get(state).slice().sort((a,b)=>a.localeCompare(b));
+    for(const name of entries){
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = `${name} (${state})`;
+      optgroup.appendChild(option);
+    }
+    selectEl.appendChild(optgroup);
+  }
 }
 
 // =====================
@@ -127,9 +246,7 @@ function renderPicks(hourValues){
 // =====================
 async function loadStations(){
   stations = await fetchJson("stations.json");
-  originEl.innerHTML =
-    `<option value="">Origin</option>` +
-    stations.map(s=>`<option value="${s.name}">${s.name}</option>`).join("");
+  renderStationOptions(originEl, stations.map(s=>s.name), "Origin");
 }
 
 async function loadMeta(){
@@ -150,8 +267,7 @@ async function onOriginChange(){
   byOrigin = await fetchJson(`by_origin/${slug}.json`);
 
   const destNames = Object.keys(byOrigin.destinations).sort();
-  destEl.innerHTML = `<option value="">Destination</option>` +
-    destNames.map(d=>`<option value="${d}">${d}</option>`).join("");
+  renderStationOptions(destEl, destNames, "Destination");
   destEl.disabled = false;
 }
 

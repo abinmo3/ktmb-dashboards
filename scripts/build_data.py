@@ -72,7 +72,7 @@ def build_service(service_key: str, url: str, out_dir: Path):
         json.dump([{"name": s} for s in stations], f, ensure_ascii=False)
 
     # Meta
-        meta = {
+    meta = {
         "service": service_key,
         "latest_date": latest_date,
         "earliest_date": earliest_date,
@@ -89,7 +89,7 @@ def build_service(service_key: str, url: str, out_dir: Path):
     for origin in origins:
         origin_slug = slugify(origin)
 
-               # slice groups for this origin (IMPORTANT: spaces only, no tabs)
+        # slice groups for this origin (IMPORTANT: spaces only, no tabs)
         try:
             base_o = base_g.xs(origin, level=0)      # index: (destination, hour)
         except KeyError:
@@ -122,14 +122,15 @@ def build_service(service_key: str, url: str, out_dir: Path):
                     baseline_24 = series_to_24(b)
                 except KeyError:
                     pass
-                    # baseline_730 (last ~24 months)
-baseline_730_24 = [None] * 24
-if base_730_o is not None:
-    try:
-        b730 = base_730_o.xs(dest, level=0)  # index: hour
-        baseline_730_24 = series_to_24(b730)
-    except KeyError:
-        pass
+
+            # baseline_730 (last ~24 months)
+            baseline_730_24 = [None] * 24
+            if base_730_o is not None:
+                try:
+                    b730 = base_730_o.xs(dest, level=0)  # index: hour
+                    baseline_730_24 = series_to_24(b730)
+                except KeyError:
+                    pass
 
 
             # today
@@ -141,11 +142,11 @@ if base_730_o is not None:
                 except KeyError:
                     pass
 
-           destinations[dest] = {
-    "baseline": baseline_24,
-    "baseline_730": baseline_730_24,
-    "today": today_24
-}
+            destinations[dest] = {
+                "baseline": baseline_24,
+                "baseline_730": baseline_730_24,
+                "today": today_24
+            }
 
 
         payload = {

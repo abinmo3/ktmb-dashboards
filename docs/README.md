@@ -13,6 +13,12 @@
   - `scripts/build_gtfs_routes.py` → regenerates `docs/data/gtfs_routes.json` and `docs/data/bbox.json` from GTFS static data.
 - The workflow commits and pushes updated files in `docs/data/`.
 
+## Local build (manual)
+To run the data build locally, install Python dependencies first:
+1. `python -m pip install -r requirements.txt`
+2. `python scripts/build_data.py`
+3. `python scripts/build_gtfs_routes.py`
+
 ## Embedding in Notion
 1. Ensure GitHub Pages is enabled for `/docs` (see above).
 2. In Notion, add an **Embed** block.

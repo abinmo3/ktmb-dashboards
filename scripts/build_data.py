@@ -72,7 +72,7 @@ def build_service(service_key: str, url: str, out_dir: Path):
         json.dump([{"name": s} for s in stations], f, ensure_ascii=False)
 
     # Meta
-        meta = {
+    meta = {
         "service": service_key,
         "latest_date": latest_date,
         "earliest_date": earliest_date,
@@ -89,7 +89,7 @@ def build_service(service_key: str, url: str, out_dir: Path):
     for origin in origins:
         origin_slug = slugify(origin)
 
-               # slice groups for this origin (IMPORTANT: spaces only, no tabs)
+        # slice groups for this origin (IMPORTANT: spaces only, no tabs)
         try:
             base_o = base_g.xs(origin, level=0)      # index: (destination, hour)
         except KeyError:

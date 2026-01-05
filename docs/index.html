@@ -4,178 +4,142 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>KTM Komuter Crowd Pulse</title>
-  <style>
-    :root{
-      --bg:#f5f7fb;
-      --card:#fff;
-      --text:#0f172a;
-      --muted:#64748b;
-      --border:#e2e8f0;
-      --primary:#0f8a8d;
-      --primary-600:#0b6d70;
-      --shadow:0 12px 30px rgba(15, 23, 42, 0.08);
-    }
-    *{box-sizing:border-box}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:0;background:var(--bg);color:var(--text)}
-    .muted{color:var(--muted)}
-    a{text-decoration:none;color:inherit}
-    .page{max-width:1200px;margin:0 auto;padding:24px}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
-    .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;gap:16px}
-    .nav-title{font-weight:700;font-size:18px}
-    .nav-links{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:14px}
-    .nav-links a{padding:6px 10px;border-radius:999px}
-    .nav-links a.active{background:#e0f2f1;color:var(--primary)}
-    .hero{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:center;padding:32px 24px;border-top:1px solid var(--border)}
-    .hero h1{margin:0 0 8px;font-size:36px}
-    .hero p{margin:0 0 16px;color:var(--muted)}
-    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
-    .btn{border-radius:999px;padding:10px 18px;font-weight:600;font-size:14px;border:1px solid transparent;display:inline-flex;align-items:center;gap:8px}
-    .btn-primary{background:var(--primary);color:#fff}
-    .btn-primary:hover{background:var(--primary-600)}
-    .btn-outline{border-color:var(--primary);color:var(--primary);background:#fff}
-    .hero-graphic{min-height:220px;border-radius:16px;background:linear-gradient(120deg,#e0f2f1,#f1f5f9);border:1px dashed #cbd5f5;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px}
-    .features{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
-    .feature-card{padding:16px;border:1px solid var(--border);border-radius:14px;background:#fff;display:flex;flex-direction:column;gap:8px}
-    .feature-title{font-weight:700}
-    .section-title{font-size:20px;margin:24px 0 12px}
-    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-    .kpi{padding:16px;border-radius:14px;border:1px solid var(--border);background:#fff}
-    .kpi strong{font-size:22px;display:block;margin-top:4px}
-    .split{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-top:16px}
-    .chart-preview{padding:16px;border:1px solid var(--border);border-radius:14px;background:#fff;display:flex;flex-direction:column;gap:12px}
-    .chart-canvas{height:160px;border-radius:12px;background:linear-gradient(180deg,#e2f5f6,#fff);border:1px solid #dbeafe;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px}
-    .station-gallery{padding:16px;border:1px solid var(--border);border-radius:14px;background:#fff}
-    .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
-    .gallery-card{border:1px solid var(--border);border-radius:12px;padding:10px;background:#f8fafc;font-size:12px}
-    .app-panel{margin-top:20px;padding:16px;border-radius:16px;background:#fff;border:1px solid var(--border)}
-    .row{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10px;align-items:center;margin-bottom:8px}
-    select{width:100%;min-width:0;padding:10px;border-radius:10px;border:1px solid #ddd}
-    #meta,#live{color:#666;font-size:12px;margin-top:6px}
-    #picks{margin-top:10px;font-size:14px}
-    canvas{width:100%;height:140px;margin-top:12px;border-radius:12px;border:1px solid #f0f0f0}
-    .legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:#666;margin-top:6px}
-    details{margin-top:12px}
-    footer{margin-top:28px;padding:20px 24px;color:var(--muted);font-size:12px;display:grid;gap:8px;border-top:1px solid var(--border)}
-    @media (max-width: 960px){
-      .hero{grid-template-columns:1fr}
-      .features,.kpis{grid-template-columns:1fr}
-      .split{grid-template-columns:1fr}
-      .gallery-grid{grid-template-columns:repeat(2,1fr)}
-      .row{grid-template-columns:1fr}
-    }
-  </style>
+  <link rel="stylesheet" href="./style.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 </head>
 <body>
-  <div class="page card">
+  <div class="page">
     <nav class="nav">
-      <div class="nav-title">KTMB Crowd & Trend</div>
+      <a class="nav-brand" href="./index.html">KTMB Crowd &amp; Trend</a>
       <div class="nav-links">
         <a class="active" href="./index.html">Home</a>
-        <a href="./reco.html">Stations</a>
-        <a href="./index.html#forecast">Crowd Forecast</a>
-        <a href="./index.html#live-map">Live Map</a>
-        <a href="./index.html#trends">Trends</a>
-        <a href="./index.html#guides">Guides</a>
-        <a href="./index.html#data">Data</a>
+        <a href="./stations.html">Stations</a>
+        <a href="./reco.html">Crowd Forecast</a>
+        <a href="./live-map.html">Live Map</a>
+        <a href="./trend.html">Trend Lab</a>
+        <a href="./data.html">Data &amp; Method</a>
+        <a href="./guides.html">Guides</a>
+        <a href="./submit.html">Submit Report</a>
+        <a href="./disclaimer.html">Disclaimer</a>
       </div>
     </nav>
 
     <section class="hero">
       <div>
-        <h1>KTMB Crowd & Trend</h1>
-        <p>Estimate crowd using historical ridership + community reports. Not official live counts.</p>
+        <h1>Plan smarter rides with live network context.</h1>
+        <p>Track crowd tendencies, compare stations, and explore live train positions. Forecasts use historical ridership and community reports.</p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#forecast">Check Crowd</a>
-          <a class="btn btn-outline" href="#live-map">View Live Map</a>
+          <a class="btn btn-primary" href="#forecast">Check crowd forecast</a>
+          <a class="btn btn-outline" href="#live-map">Open live map</a>
         </div>
       </div>
-      <div class="hero-graphic">Map + service network preview</div>
-    </section>
-
-    <section class="features">
-      <div class="feature-card">
-        <div class="feature-title">Station Directory</div>
-        <div class="feature-text">Explore KTMB stations, facilities, and schedules for better planning.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Daily Trend Lab</div>
-        <div class="feature-text">Analyze crowd patterns based on historical data and forecasts.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Submit Crowd Report</div>
-        <div class="feature-text">Share on-the-ground crowd insights to help the community.</div>
+      <div class="hero-card">
+        <span class="badge">Today</span>
+        <strong>Live operational overview</strong>
+        <span class="muted">Monitor active trains, crowd sentiment, and network trends in one dashboard.</span>
       </div>
     </section>
 
-    <section>
-      <div class="section-title">Today’s Highlights</div>
-      <div class="kpis">
-        <div class="kpi">
-          <div>Active services</div>
+    <section class="section">
+      <div class="section-title">Service highlights</div>
+      <div class="grid grid-3">
+        <div class="kpi-card">
+          <div class="muted">Active services</div>
           <strong>98%</strong>
-          <div class="muted">On-time performance</div>
+          <div class="muted">On-time performance estimate</div>
         </div>
-        <div class="kpi">
-          <div>Most busy station</div>
+        <div class="kpi-card">
+          <div class="muted">Busiest station</div>
           <strong>KL Sentral</strong>
-          <div class="muted">Estimated peak at 5:45 PM</div>
+          <div class="muted">Peak crowd around 5:45 PM</div>
         </div>
-        <div class="kpi">
-          <div>Best off-peak window</div>
+        <div class="kpi-card">
+          <div class="muted">Best off-peak window</div>
           <strong>10:00 AM – 3:00 PM</strong>
-          <div class="muted">Lower crowd density expected</div>
+          <div class="muted">Lower density expected</div>
         </div>
       </div>
     </section>
 
-    <section class="split" id="trends">
-      <div class="chart-preview">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <strong>Weekly Ridership Trend (Preview)</strong>
-          <span style="color:var(--primary);font-size:12px;">View full chart</span>
+    <section class="section">
+      <div class="grid grid-3">
+        <div class="list-card">
+          <strong>Station directory</strong>
+          <span class="muted">Browse stations, state groupings, and quick links.</span>
+          <a class="inline-link" href="./stations.html">Explore stations</a>
         </div>
-        <div class="chart-canvas">Chart preview placeholder</div>
-      </div>
-      <div class="station-gallery" id="guides">
-        <strong>Popular Stations</strong>
-        <div class="gallery-grid">
-          <div class="gallery-card">KL Sentral</div>
-          <div class="gallery-card">Subang Jaya</div>
-          <div class="gallery-card">Bandar Tasek Selatan</div>
-          <div class="gallery-card">Shah Alam</div>
-          <div class="gallery-card">Kajang</div>
-          <div class="gallery-card">Seremban</div>
+        <div class="list-card">
+          <strong>Daily trend lab</strong>
+          <span class="muted">Check recent patterns and compare ridership trends.</span>
+          <a class="inline-link" href="./trend.html">Open trend lab</a>
+        </div>
+        <div class="list-card">
+          <strong>Community reports</strong>
+          <span class="muted">Share on-the-ground crowd observations.</span>
+          <a class="inline-link" href="./submit.html">Submit a report</a>
         </div>
       </div>
     </section>
 
-    <section id="forecast" class="app-panel">
-      <div class="row">
-        <select id="service">
-          <option value="komuter">Komuter (Klang Valley)</option>
-          <option value="komuter_utara">Komuter Utara (North)</option>
-        </select>
-        <select id="origin"></select>
-        <select id="destination" disabled></select>
+    <section class="section" id="trends">
+      <div class="grid grid-2">
+        <div class="panel card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <strong>Weekly ridership trend</strong>
+            <a class="inline-link" href="./trend.html">View full trend</a>
+          </div>
+          <div class="chart-placeholder" style="margin-top: var(--space-3);">Trend visual preview (coming from Trend Lab)</div>
+        </div>
+        <div class="panel card" id="guides">
+          <strong>Popular stations</strong>
+          <div class="list-grid" style="margin-top: var(--space-3);">
+            <div class="list-card">KL Sentral</div>
+            <div class="list-card">Subang Jaya</div>
+            <div class="list-card">Bandar Tasek Selatan</div>
+            <div class="list-card">Shah Alam</div>
+            <div class="list-card">Kajang</div>
+            <div class="list-card">Seremban</div>
+          </div>
+        </div>
       </div>
-      <div id="meta">Loading data…</div>
-      <div id="live"></div>
-      <canvas id="heatmap" width="960" height="180"></canvas>
-      <div id="live-map">
-        <details id="liveMapDetails" open style="margin-top:12px" aria-label="Live map">
-          <summary style="cursor:pointer;font-weight:600">Live map (route + train positions)</summary>
-          <div id="map" style="height:280px;margin-top:10px;border:1px solid #f0f0f0;border-radius:12px"></div>
-        </details>
+    </section>
+
+    <section id="forecast" class="section">
+      <div class="panel card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom: var(--space-3);">
+          <div>
+            <strong>Crowd forecast explorer</strong>
+            <div class="muted">Choose a service, origin, and destination to view crowd estimates.</div>
+          </div>
+          <a class="btn btn-soft" href="./reco.html">Open full forecast</a>
+        </div>
+        <div class="row">
+          <select id="service">
+            <option value="komuter">Komuter (Klang Valley)</option>
+            <option value="komuter_utara">Komuter Utara (North)</option>
+          </select>
+          <select id="origin"></select>
+          <select id="destination" disabled></select>
+        </div>
+        <div class="meta" style="margin-top: var(--space-2);">
+          <div id="meta">Loading data…</div>
+          <div id="live"></div>
+        </div>
+        <canvas id="heatmap" width="960" height="180"></canvas>
+        <div id="live-map" style="margin-top: var(--space-4);">
+          <details id="liveMapDetails" open class="details-card" aria-label="Live map">
+            <summary style="cursor:pointer;font-weight:600">Live map (route + train positions)</summary>
+            <div id="map" style="height:320px;margin-top:10px;border:1px solid var(--border);border-radius:12px"></div>
+          </details>
+        </div>
+        <div class="legend" style="margin-top: var(--space-3);">
+          <span>Low (likely seats)</span>
+          <span>Medium (mixed)</span>
+          <span>High (standing likely)</span>
+          <span>Very High (packed)</span>
+        </div>
+        <div id="picks"></div>
       </div>
-      <div class="legend">
-        <span>Low (likely seats)</span>
-        <span>Medium (mixed)</span>
-        <span>High (standing likely)</span>
-        <span>Very High (packed)</span>
-      </div>
-      <div id="picks"></div>
     </section>
 
     <footer id="data">

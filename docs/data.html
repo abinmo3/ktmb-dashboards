@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KTM Komuter – Data & Method</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="page">
+    <nav class="nav">
+      <a class="nav-brand" href="./index.html">KTMB Crowd &amp; Trend</a>
+      <div class="nav-links">
+        <a href="./index.html">Home</a>
+        <a href="./stations.html">Stations</a>
+        <a href="./reco.html">Crowd Forecast</a>
+        <a href="./live-map.html">Live Map</a>
+        <a href="./trend.html">Trend Lab</a>
+        <a class="active" href="./data.html">Data &amp; Method</a>
+        <a href="./guides.html">Guides</a>
+        <a href="./submit.html">Submit Report</a>
+        <a href="./disclaimer.html">Disclaimer</a>
+      </div>
+    </nav>
+
+    <section class="section">
+      <div class="panel card">
+        <h2 style="margin:0;">Data &amp; methodology</h2>
+        <p class="muted" style="margin: var(--space-2) 0 var(--space-4);">Learn how the dashboards combine ridership history with live vehicle data.</p>
+        <div class="grid" style="gap: var(--space-3);">
+          <div class="box">
+            <div class="title">Ridership history</div>
+            <p class="muted">Daily and hourly ridership aggregates are sourced from data.gov.my datasets and refreshed by the automated build workflow.</p>
+          </div>
+          <div class="box">
+            <div class="title">Live train positions</div>
+            <p class="muted">GTFS-realtime feeds are proxied through the Cloudflare Worker to provide live vehicle positions without exposing API keys.</p>
+          </div>
+          <div class="box">
+            <div class="title">Forecast logic</div>
+            <p class="muted">Best/avoid windows are computed by comparing hourly baselines and recent-day ridership, then ranked to highlight lower-density periods.</p>
+          </div>
+          <div class="box">
+            <div class="title">Community reports</div>
+            <p class="muted">Crowd reports submitted through the Submit Report page are stored locally in your browser for quick reference.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

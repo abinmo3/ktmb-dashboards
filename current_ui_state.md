@@ -3,12 +3,13 @@
 ## HTML Prototype (`docs/ktmb-pulse-upgraded.html`)
 This is the most complete visual prototype. It's a **dark premium theme** with a full 5-tab bottom navigation:
 
-| Tab | Content |
+| Screen | Content |
 |-----|---------|
-| **Network** (Home) | Hero "The KTM network across Peninsular Malaysia" · 153 stations · 4+2 services · 8.2M journeys · Malaysia SVG map with service layer toggles · YoY ridership trends (Selatan ↓15.8%, Utara ↑22.1%) |
+| **Network** (Home) | Hero "The KTM network across Peninsular Malaysia" · 153 stations · 4+2 services · 8.2M journeys · Malaysia SVG map with service layer toggles · YoY ridership trends (Selatan ↓15.8%, Utara ↑22.1%) · **KPI row (stations, live trains, ridership)** · **Quick actions (Find Route, Live Map, Alarms)** · **Trending stations strip** · **Last-route resume** |
 | **Forecast** | Origin/destination route selectors · 24h crowd heatmap with Latest/Typical toggle · Best/Avoid windows |
 | **Live** | GTFS-realtime vehicle feed with vehicle list |
 | **Stations** | Search by name/state · grouped by state · click for detail card with "Use as origin/destination" |
+| **Alarms** 🔥 | **Station search + picker** · **Configurable radius (500m/1km/2km)** · **Foreground GPS service** · **Proximity alarm notification** · **Enable/disable/delete alarms** |
 | **Info** | Settings · Data freshness · Attribution |
 
 Service filter: All / Komuter / Utara / ETS / Intercity / Shuttle / BRT — scrollable pills.

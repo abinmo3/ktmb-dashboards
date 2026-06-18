@@ -81,13 +81,29 @@ data class LiveVehicle(
     val timestamp: Long,        // epoch seconds
 )
 
-// ── Live feed summary state ──
+// ── GTFS-R feed state ──
+enum class FeedState(val label: String, val description: String) {
+    LIVE_ACTIVE("Live", "Active vehicles reported by upstream API"),
+    LIVE_EMPTY("Empty", "Feed reachable but no vehicles currently reported"),
+    FEED_ERROR("Error", "Feed is currently unavailable"),
+    STALE("Stale", "Last vehicle data is older than 2 minutes"),
+}
+
+// ── Live feed summary with debug metrics ──
 data class LiveSummary(
     val vehicleCount: Int,
-    val coverage: String,        // "Low" / "Medium" / "High" / "Very high" / "Unavailable"
+    val coverage: String,
     val freshness: LiveFreshness,
-    val lastUpdated: String,     // human-readable timestamp
+    val feedState: FeedState = FeedState.FEED_ERROR,
+    val lastUpdated: String,
     val vehicles: List<LiveVehicle> = emptyList(),
+    // Debug fields
+    val httpStatus: Int = 0,
+    val responseBytes: Int = 0,
+    val lastFetchTimeMs: Long = 0L,
+    val lastSuccessTimeMs: Long = 0L,
+    val lastVehicleTimestamp: Long = 0L,
+    val cacheAgeSeconds: Long = 0L,
 ) {
     companion object {
         val EMPTY = LiveSummary(
@@ -128,7 +144,19 @@ data class GuideSection(
     val body: String,
 )
 
-// ── Service metadata (from meta.json) ──
+data class RidershipStatus(
+    val latestDate: String,         // ISO date from dataset max
+    val rowCount: Int,              // total parsed rows
+    val freshness: RidershipFreshness,
+    val source: String,             // "data.gov.my" or "offline cache"
+    val isCached: Boolean = false,
+)
+
+enum class RidershipFreshness(val label: String) {
+    FRESH("Fresh"),
+    DELAYED("Delayed"),
+    STALE("Stale"),
+}
 data class ServiceMeta(
     val service: String,
     val latestDate: String,      // ISO date "2025-12-31"

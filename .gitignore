@@ -84,6 +84,9 @@ upgrade_sensors
 # === vscode / codeium ===
 unleash-*.json
 
+# === IDE ===
+.idea/
+
 # === Screenshots ===
 ktmb_emu_screenshot*.png
 ktmb_screenshot*.png

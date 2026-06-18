@@ -4,10 +4,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ktmb.crowdtrend.core.model.LiveFreshness
+import com.ktmb.crowdtrend.core.model.RidershipStatus
 import com.ktmb.crowdtrend.core.model.ServiceType
 import com.ktmb.crowdtrend.core.model.Station
 import com.ktmb.crowdtrend.data.datastore.KtmbPreferences
 import com.ktmb.crowdtrend.data.repository.LiveRepository
+import com.ktmb.crowdtrend.data.repository.RidershipRepository
 import com.ktmb.crowdtrend.data.repository.StationRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,12 +46,19 @@ data class HomeUiState(
     val coverageLine: String = "—",
     val isLoading: Boolean = false,
     val error: String? = null,
+    val ridershipStatus: RidershipStatus = RidershipStatus(
+        latestDate = "",
+        rowCount = 0,
+        freshness = com.ktmb.crowdtrend.core.model.RidershipFreshness.STALE,
+        source = "",
+    ),
 )
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val stationRepo = StationRepository(application)
     private val liveRepo = LiveRepository()
+    private val ridershipRepo = RidershipRepository(application)
     private val prefs = KtmbPreferences(application)
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -81,6 +90,15 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     /* live data is best-effort on Home */
                 }
                 delay(30_000L)
+            }
+        }
+        // Load ridership status once
+        viewModelScope.launch {
+            try {
+                val status = ridershipRepo.fetchStatus()
+                _uiState.update { it.copy(ridershipStatus = status) }
+            } catch (_: Exception) {
+                // best-effort
             }
         }
     }

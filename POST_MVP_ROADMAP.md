@@ -7,11 +7,13 @@
 
 ## Current MVP Capabilities (Stage 0–4 complete)
 
-| Screen | What it does |
+| Screen | Content |
 |--------|-------------|
+| **Network** (Home) | Hero card, KPI row, quick actions, trending stations, route resume |
 | **Forecast** | Origin/destination crowd heatmap, best/avoid windows, Latest vs Typical toggle, service switching, route persistence |
 | **Live** | GTFS-realtime vehicle positions, freshness bar, 30s polling, coverage labels, manual refresh |
 | **Stations** | Offline search by name/state, grouped-by-state directory, station detail with "Use as origin/destination" actions |
+| **Alarms** 🔥 | **Station search + picker, configurable radius, foreground GPS service, proximity alarm notifications** |
 | **Settings** | Service switch, data freshness + staleness warning, source attribution, advisory disclaimers |
 
 ---

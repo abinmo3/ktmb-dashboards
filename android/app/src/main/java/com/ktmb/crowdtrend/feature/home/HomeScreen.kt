@@ -25,6 +25,9 @@ import com.ktmb.crowdtrend.core.model.LiveFreshness
 import com.ktmb.crowdtrend.core.model.ServiceType
 import com.ktmb.crowdtrend.core.ui.components.*
 import com.ktmb.crowdtrend.ui.theme.*
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 @Composable
 fun HomeScreen(
@@ -82,8 +85,9 @@ fun HomeScreen(
             )
             MetricCard(
                 label = "Ridership",
-                value = if (state.liveFreshness == LiveFreshness.UNAVAILABLE) "—" else "8.2M",
-                note = "All services YTD",
+                value = if (state.liveFreshness == LiveFreshness.UNAVAILABLE) "—"
+                        else state.ridershipStatus.latestDate.ifEmpty { "—" },
+                note = state.ridershipStatus.freshness.label,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -191,11 +195,20 @@ fun HomeScreen(
         Spacer(Modifier.height(18.dp))
 
         // ── Data freshness ──
-        DataFreshnessLabel(
-            latestDate = state.liveFreshness.name,
-            daysBehind = 0,
-            isStale = false,
-        )
+        val rs = state.ridershipStatus
+        if (rs.latestDate.isNotEmpty()) {
+            DataFreshnessLabel(
+                latestDate = rs.latestDate,
+                daysBehind = computeDaysBehind(rs.latestDate),
+                isStale = rs.freshness != com.ktmb.crowdtrend.core.model.RidershipFreshness.FRESH,
+            )
+        } else {
+            DataFreshnessLabel(
+                latestDate = state.liveFreshness.name,
+                daysBehind = 0,
+                isStale = false,
+            )
+        }
 
         Spacer(Modifier.height(20.dp))
     }
@@ -297,5 +310,14 @@ private fun TrendingCard(
                 color = MaterialTheme.colorScheme.primary,
             )
         }
+    }
+}
+
+private fun computeDaysBehind(dateStr: String): Int {
+    return try {
+        val date = LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE)
+        ChronoUnit.DAYS.between(date, LocalDate.now()).toInt()
+    } catch (_: Exception) {
+        0
     }
 }

@@ -1,11 +1,14 @@
 # Current Task — June 2026
 
-## Status: Established MVP — Phase 0–4 Complete
+## Status: MVP + Home Dashboard + Transit Alarms — June 2026
 
-The Android app has 4 working screens (Forecast, Live, Stations, Settings). The HTML prototype has a 5-tab design with a full Malaysia SVG map.
+The Android app now has **6 working screens** (Network/Home, Forecast, Live, Stations, Alarms, Info/Settings).
 
 ## What's Done
 - ✅ Android app builds + runs on device
+- ✅ **Home/Network dashboard** — KPI row, quick actions, trending stations, last-route resume, service switcher
+- ✅ **Transit Alarms** — GPS proximity alarm system with foreground service, configurable radius, notifications
+- ✅ **6-tab bottom navigation** (Network, Forecast, Live, Stations, Alarms, Info)
 - ✅ Forecast screen with heatmap, best/avoid windows, service switch
 - ✅ Live screen with GTFS vehicle list, 30s auto-poll, freshness indicator
 - ✅ Stations screen with search, grouped-by-state directory, detail cards

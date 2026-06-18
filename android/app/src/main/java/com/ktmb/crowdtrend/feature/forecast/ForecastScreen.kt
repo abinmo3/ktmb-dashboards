@@ -217,10 +217,17 @@ fun ForecastScreen(
         }
 
         Spacer(Modifier.height(8.dp))
-        AdvisoryDisclaimer(
-            "Forecast based on historical ridership ratios from data.gov.my. " +
-            "Not live counts or official KTM data. Use for planning guidance only."
-        )
+        if (state.freshness.latestDate.isNotEmpty()) {
+            AdvisoryDisclaimer(
+                "Forecast based on historical ridership patterns. " +
+                "Latest source data: ${state.freshness.latestDate}."
+            )
+        } else {
+            AdvisoryDisclaimer(
+                "Forecast based on historical ridership patterns. " +
+                "Not live counts or official KTM data. Use for planning guidance only."
+            )
+        }
 
         Spacer(Modifier.height(80.dp))
     }

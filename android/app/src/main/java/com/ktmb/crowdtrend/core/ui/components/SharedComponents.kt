@@ -14,6 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.ktmb.crowdtrend.core.model.RidershipFreshness
+import com.ktmb.crowdtrend.core.model.RidershipStatus
 import com.ktmb.crowdtrend.core.model.ServiceType
 import com.ktmb.crowdtrend.ui.theme.*
 
@@ -335,6 +337,78 @@ fun CrowdHeatmap(
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             listOf("00", "06", "12", "18", "24").forEach { label ->
                 Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+            }
+        }
+    }
+}
+
+// ═══════════════════════════════════════════
+// Per-source Data Freshness (multi-source)
+// ═══════════════════════════════════════════
+
+/**
+ * Display per-source freshness — used when you have multiple data sources
+ * and want to show each one's status individually (e.g. Settings screen).
+ */
+@Composable
+fun MultiSourceFreshness(
+    sources: List<SourceFreshnessItem>,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier.fillMaxWidth()) {
+        sources.forEach { src ->
+            SourceFreshnessRow(src.name, src.date, src.status, src.isHealthy)
+        }
+    }
+}
+
+/**
+ * Individual source freshness item for [MultiSourceFreshness].
+ */
+data class SourceFreshnessItem(
+    val name: String,
+    val date: String,
+    val status: String,
+    val isHealthy: Boolean,
+)
+
+@Composable
+private fun SourceFreshnessRow(
+    sourceName: String,
+    date: String,
+    status: String,
+    isHealthy: Boolean,
+) {
+    val dotColor = if (isHealthy) CrowdLow else AmberWarning
+
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = dotColor.copy(alpha = 0.08f),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+    ) {
+        Row(
+            Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Surface(Modifier.size(8.dp), shape = RoundedCornerShape(4.dp), color = dotColor) {}
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Text(sourceName, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+                if (date.isNotEmpty()) {
+                    Text(date, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                }
+            }
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = dotColor.copy(alpha = 0.15f),
+            ) {
+                Text(
+                    status,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Medium,
+                    color = dotColor,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                )
             }
         }
     }

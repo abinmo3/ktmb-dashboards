@@ -1,44 +1,56 @@
 package com.ktmb.crowdtrend.data.remote
 
-import com.ktmb.crowdtrend.BuildConfig
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.http.GET
-import retrofit2.http.Url
+import okhttp3.Request
 import java.util.concurrent.TimeUnit
 
 /**
- * Raw byte fetcher for the GTFS-realtime vehicle position feed.
+ * Direct GTFS-Realtime API fetcher using OkHttp.
  *
- * Security: No API keys or secrets. The proxy is a public Cloudflare Worker
- * that simply adds CORS headers to the upstream data.gov.my endpoint.
+ * Fetches raw protobuf bytes from the public data.gov.my endpoint.
+ * No auth, no proxy — direct HTTPS call with 10 s connect + read timeout.
  */
-interface GtfsService {
-    @GET
-    suspend fun getVehiclePositions(@Url url: String): okhttp3.ResponseBody
-}
-
 object GtfsClient {
 
-    private val okHttp: OkHttpClient = OkHttpClient.Builder()
+    private const val GTFS_URL =
+        "https://api.data.gov.my/gtfs-realtime/vehicle-position/ktmb"
+
+    private val client: OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(10, TimeUnit.SECONDS)
-        .addInterceptor(
-            HttpLoggingInterceptor().apply {
-                level = if (BuildConfig.DEBUG)
-                    HttpLoggingInterceptor.Level.NONE  // no URL logging in any build
-                else
-                    HttpLoggingInterceptor.Level.NONE
-            }
-        )
         .build()
 
-    val service: GtfsService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BuildConfig.GTFS_PROXY_URL)
-            .client(okHttp)
+    /**
+     * Result of a GTFS-realtime fetch.
+     *
+     * @param bytes     raw protobuf response body
+     * @param httpStatus HTTP status code (e.g. 200, 503)
+     */
+    data class GtfsResponse(
+        val bytes: ByteArray,
+        val httpStatus: Int,
+    )
+
+    /**
+     * Perform a blocking HTTP GET to the GTFS-realtime feed.
+     *
+     * Callers MUST run this off the main thread (e.g. via withContext(Dispatchers.IO)).
+     *
+     * @return [GtfsResponse] with bytes and status code
+     * @throws IOException on network failure, timeout, or DNS error
+     */
+    fun fetch(): GtfsResponse {
+        val request = Request.Builder()
+            .url(GTFS_URL)
+            .get()
             .build()
-            .create(GtfsService::class.java)
+
+        val response = client.newCall(request).execute()
+        return response.use { resp ->
+            val body = resp.body
+                ?: throw IllegalStateException("Empty response body (HTTP ${resp.code})")
+            val bytes = body.bytes()
+            GtfsResponse(bytes = bytes, httpStatus = resp.code)
+        }
     }
 }

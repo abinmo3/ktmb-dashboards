@@ -35,6 +35,20 @@ This is **KTMB Pulse** (Crowd & Trend), a crowd-forecast and live-tracking app f
 4. **Station names** — match `stations.json` exactly; include state mapping
 5. **Crowd levels** — use the enum/scale defined in `CrowdLevel` (typically 1–5)
 
+## Navigation
+The app now has **6 bottom nav tabs**: Network (Home), Forecast, Live, Stations, Alarms, Info.
+- Home is the default start destination
+- Stations screen can navigate to Forecast with prefilled origin/destination
+- Home screen has quick actions that navigate to Forecast, Live, Alarms
+
+## Transit Alarms Feature
+Location-based GPS proximity alarms for approaching stations.
+- `TransitAlarmService` — foreground service using `LocationManager` + `LocationListener`
+- `TransitAlarmRepository` — persists alarms in app-private JSON file
+- Requires `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, `POST_NOTIFICATIONS` permissions
+- Configurable radius: 500m / 1km / 2km
+- Station coordinates in `assets/data/station_coords.json` (152 stations)
+
 ## Data Sources to Know
 - `api.data.gov.my` — Malaysian open data portal (primary ridership parquets)
 - GTFS-Realtime feed — Live vehicle positions via Cloudflare Worker proxy

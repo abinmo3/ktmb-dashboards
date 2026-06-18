@@ -1,0 +1,53 @@
+[
+  {
+    "slug": "peak-avoidance",
+    "title": "Avoid peak crowd windows",
+    "summary": "Identify the busiest hours and plan travel during lower-density slots.",
+    "readTime": "5 min read",
+    "updated": "2024-10-01",
+    "sections": [
+      {
+        "heading": "Check the forecast first",
+        "body": "Use the Crowd Forecast page to compare latest-day and 24-month patterns before heading out."
+      },
+      {
+        "heading": "Aim for mid-morning travel",
+        "body": "Historical data shows lower load between late morning and early afternoon on most lines."
+      }
+    ]
+  },
+  {
+    "slug": "live-map-basics",
+    "title": "Use the live map effectively",
+    "summary": "Track active trains and spot route coverage with the live map view.",
+    "readTime": "4 min read",
+    "updated": "2024-09-18",
+    "sections": [
+      {
+        "heading": "Watch active trains",
+        "body": "Zoom into the corridor you care about and use the live train count to confirm service availability."
+      },
+      {
+        "heading": "Compare with trends",
+        "body": "Pair the live map with Trend Lab to understand which stations consistently spike."
+      }
+    ]
+  },
+  {
+    "slug": "station-planning",
+    "title": "Plan trips by station",
+    "summary": "Use station profiles to jump into forecast and live map workflows.",
+    "readTime": "3 min read",
+    "updated": "2024-08-30",
+    "sections": [
+      {
+        "heading": "Search the station directory",
+        "body": "Filter by station name or state to quickly find the hub you need."
+      },
+      {
+        "heading": "Save links for later",
+        "body": "Use the station detail page as a launchpad to forecast and live views."
+      }
+    ]
+  }
+]

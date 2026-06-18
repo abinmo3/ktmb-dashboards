@@ -1,0 +1,48 @@
+name: Build crowd data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 20 * * *"  # 04:00 Malaysia time (UTC+8)
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-crowd-data
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install pandas pyarrow requests
+
+      - name: Build crowd JSON
+        run: |
+          python scripts/build_data.py
+
+      - name: Build GTFS route lines
+        run: |
+          python scripts/build_gtfs_routes.py
+
+      - name: Commit generated data
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add docs/data
+          git commit -m "Update crowd data" || echo "No changes"
+
+          git pull --rebase origin main
+          git push origin main

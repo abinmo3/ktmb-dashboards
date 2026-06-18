@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KTM Komuter – Submit Report</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="page">
+    <nav class="nav">
+      <a class="nav-brand" href="./index.html">KTMB Crowd &amp; Trend</a>
+      <div class="nav-links">
+        <a href="./index.html">Home</a>
+        <a href="./stations.html">Stations</a>
+        <a href="./reco.html">Crowd Forecast</a>
+        <a href="./live-map.html">Live Map</a>
+        <a href="./trend.html">Trend Lab</a>
+        <a href="./data.html">Data &amp; Method</a>
+        <a href="./guides.html">Guides</a>
+        <a class="active" href="./submit.html">Submit Report</a>
+        <a href="./disclaimer.html">Disclaimer</a>
+      </div>
+    </nav>
+
+    <section class="section">
+      <div class="panel card">
+        <h2 style="margin:0;">Submit a crowd report</h2>
+        <p class="muted" style="margin: var(--space-2) 0 var(--space-4);">Share on-the-ground crowd notes to help other riders.</p>
+        <form id="reportForm" class="grid" style="gap: var(--space-3);max-width: 640px;">
+          <div>
+            <label for="reportStation">Station</label>
+            <input id="reportStation" name="station" type="text" placeholder="e.g. KL Sentral" required />
+          </div>
+          <div>
+            <label for="reportLevel">Crowd level</label>
+            <select id="reportLevel" name="level" required>
+              <option value="Low">Low</option>
+              <option value="Moderate">Moderate</option>
+              <option value="Busy">Busy</option>
+              <option value="Packed">Packed</option>
+            </select>
+          </div>
+          <div>
+            <label for="reportNotes">Notes</label>
+            <textarea id="reportNotes" name="notes" placeholder="Optional context (platform, line, time)"></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit">Save report locally</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="panel card">
+        <h3 style="margin:0;">Recent reports</h3>
+        <div id="reportList" class="list-grid" style="margin-top: var(--space-3);"></div>
+      </div>
+    </section>
+  </div>
+
+  <script src="./ui.js"></script>
+</body>
+</html>

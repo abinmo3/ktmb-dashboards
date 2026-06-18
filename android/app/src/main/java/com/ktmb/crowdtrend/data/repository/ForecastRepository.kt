@@ -1,0 +1,67 @@
+package com.ktmb.crowdtrend.data.repository
+
+import android.content.Context
+import com.ktmb.crowdtrend.core.model.*
+import com.ktmb.crowdtrend.core.util.AssetJsonLoader
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+/**
+ * Loads crowd forecast data from bundled assets.
+ *
+ * Forecast files live at:
+ *   Komuter:       data/by_origin/{slug}.json
+ *   Komuter Utara: data/komuter_utara/by_origin/{slug}.json
+ *
+ * Each file contains all destinations reachable from that origin.
+ */
+class ForecastRepository(private val context: Context) {
+
+    /**
+     * Load the forecast for origin → destination.
+     *
+     * @return [Forecast] if both origin file and destination exist, null if route is missing.
+     * @throws Exception if the asset file is missing or malformed.
+     */
+    suspend fun loadForecast(
+        service: ServiceType,
+        origin: Station,
+        destination: Station,
+    ): Forecast? = withContext(Dispatchers.IO) {
+        val prefix = when (service) {
+            ServiceType.KOMUTER -> "data/"
+            ServiceType.KOMUTER_UTARA -> "data/komuter_utara/"
+        }
+
+        val dto: ByOriginJson = AssetJsonLoader.load(
+            context, "${prefix}by_origin/${origin.slug}.json"
+        )
+
+        val destData = dto.destinations[destination.name] ?: return@withContext null
+
+        Forecast(
+            origin = dto.origin,
+            destination = destination.name,
+            latestDate = dto.latestDate ?: "",
+            hourly = (0..23).map { hour ->
+                HourlyForecast(
+                    hour = hour,
+                    baseline = destData.baseline.getOrNull(hour),
+                    baseline730 = destData.baseline730.getOrNull(hour),
+                    today = destData.today.getOrNull(hour),
+                )
+            },
+        )
+    }
+
+    /**
+     * Load service metadata for freshness display.
+     */
+    suspend fun loadMeta(service: ServiceType): MetaJson = withContext(Dispatchers.IO) {
+        val prefix = when (service) {
+            ServiceType.KOMUTER -> "data/"
+            ServiceType.KOMUTER_UTARA -> "data/komuter_utara/"
+        }
+        AssetJsonLoader.load(context, "${prefix}meta.json")
+    }
+}

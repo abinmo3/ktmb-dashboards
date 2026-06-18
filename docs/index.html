@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KTM Komuter Crowd Pulse</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+  <div class="page">
+    <nav class="nav">
+      <a class="nav-brand" href="./index.html">KTMB Crowd &amp; Trend</a>
+      <div class="nav-links">
+        <a class="active" href="./index.html">Home</a>
+        <a href="./stations.html">Stations</a>
+        <a href="./reco.html">Crowd Forecast</a>
+        <a href="./live-map.html">Live Map</a>
+        <a href="./trend.html">Trend Lab</a>
+        <a href="./data.html">Data &amp; Method</a>
+        <a href="./guides.html">Guides</a>
+        <a href="./submit.html">Submit Report</a>
+        <a href="./disclaimer.html">Disclaimer</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div>
+        <h1>Plan smarter rides with live network context.</h1>
+        <p>Track crowd tendencies, compare stations, and explore live train positions. Forecasts use historical ridership and community reports.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#forecast">Check crowd forecast</a>
+          <a class="btn btn-outline" href="#live-map">Open live map</a>
+        </div>
+      </div>
+      <div class="hero-card">
+        <span class="badge">Today</span>
+        <strong>Live operational overview</strong>
+        <span class="muted">Monitor active trains, crowd sentiment, and network trends in one dashboard.</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">Service highlights</div>
+      <div class="grid grid-3">
+        <div class="kpi-card">
+          <div class="muted">Active services</div>
+          <strong>98%</strong>
+          <div class="muted">On-time performance estimate</div>
+        </div>
+        <div class="kpi-card">
+          <div class="muted">Busiest station</div>
+          <strong>KL Sentral</strong>
+          <div class="muted">Peak crowd around 5:45 PM</div>
+        </div>
+        <div class="kpi-card">
+          <div class="muted">Best off-peak window</div>
+          <strong>10:00 AM – 3:00 PM</strong>
+          <div class="muted">Lower density expected</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="grid grid-3">
+        <div class="list-card">
+          <strong>Station directory</strong>
+          <span class="muted">Browse stations, state groupings, and quick links.</span>
+          <a class="inline-link" href="./stations.html">Explore stations</a>
+        </div>
+        <div class="list-card">
+          <strong>Daily trend lab</strong>
+          <span class="muted">Check recent patterns and compare ridership trends.</span>
+          <a class="inline-link" href="./trend.html">Open trend lab</a>
+        </div>
+        <div class="list-card">
+          <strong>Community reports</strong>
+          <span class="muted">Share on-the-ground crowd observations.</span>
+          <a class="inline-link" href="./submit.html">Submit a report</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="trends">
+      <div class="grid grid-2">
+        <div class="panel card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <strong>Weekly ridership trend</strong>
+            <a class="inline-link" href="./trend.html">View full trend</a>
+          </div>
+          <div class="chart-placeholder" style="margin-top: var(--space-3);">Trend visual preview (coming from Trend Lab)</div>
+        </div>
+        <div class="panel card" id="guides">
+          <strong>Popular stations</strong>
+          <div class="list-grid" style="margin-top: var(--space-3);">
+            <div class="list-card">KL Sentral</div>
+            <div class="list-card">Subang Jaya</div>
+            <div class="list-card">Bandar Tasek Selatan</div>
+            <div class="list-card">Shah Alam</div>
+            <div class="list-card">Kajang</div>
+            <div class="list-card">Seremban</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="forecast" class="section">
+      <div class="panel card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom: var(--space-3);">
+          <div>
+            <strong>Crowd forecast explorer</strong>
+            <div class="muted">Choose a service, origin, and destination to view crowd estimates.</div>
+          </div>
+          <a class="btn btn-soft" href="./reco.html">Open full forecast</a>
+        </div>
+        <div class="row">
+          <select id="service">
+            <option value="komuter">Komuter (Klang Valley)</option>
+            <option value="komuter_utara">Komuter Utara (North)</option>
+          </select>
+          <select id="origin"></select>
+          <select id="destination" disabled></select>
+        </div>
+        <div class="meta" style="margin-top: var(--space-2);">
+          <div id="meta">Loading data…</div>
+          <div id="live"></div>
+        </div>
+        <canvas id="heatmap" width="960" height="180"></canvas>
+        <div id="live-map" style="margin-top: var(--space-4);">
+          <details id="liveMapDetails" open class="details-card" aria-label="Live map">
+            <summary style="cursor:pointer;font-weight:600">Live map (route + train positions)</summary>
+            <div id="map" style="height:320px;margin-top:10px;border:1px solid var(--border);border-radius:12px"></div>
+          </details>
+        </div>
+        <div class="legend" style="margin-top: var(--space-3);">
+          <span>Low (likely seats)</span>
+          <span>Medium (mixed)</span>
+          <span>High (standing likely)</span>
+          <span>Very High (packed)</span>
+        </div>
+        <div id="picks"></div>
+      </div>
+    </section>
+
+    <footer id="data">
+      <div><strong>Data source:</strong> data.gov.my + GTFS (General Transit Feed Specification)</div>
+      <div><strong>Disclaimer:</strong> Crowd estimates and forecasts are based on historical data and community reports, not official live KTMB counts. Use for planning purposes only.</div>
+      <div><strong>Contact:</strong> support@ktmbcrowdtrend.com</div>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.4.0/dist/protobuf.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

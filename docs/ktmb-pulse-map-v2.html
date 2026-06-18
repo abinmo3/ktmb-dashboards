@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KTMB Pulse — Real Peninsula Hybrid Live Map</title>
+<style>
+:root{
+  --bg:#07111d;
+  --card:#111d2b;
+  --card2:#0b1522;
+  --text:#edf7ff;
+  --text2:#7f91a8;
+  --line:#1e3045;
+  --radius-s:14px;
+  --cyan:#00d0c6;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  background:radial-gradient(circle at 80% 80%, rgba(0,208,198,.12), transparent 32%), #07111d;
+  color:var(--text);
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.phone{
+  width:min(410px,100vw);
+  min-height:820px;
+  background:#080f18;
+  border:1px solid #27384f;
+  border-radius:42px;
+  padding:22px 17px 24px;
+  box-shadow:0 28px 90px rgba(0,0,0,.45), inset 0 0 0 4px rgba(255,255,255,.04);
+}
+.status{height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-weight:800;font-size:14px}
+.notch{position:absolute;left:50%;transform:translateX(-50%);width:120px;height:30px;background:#000;border-radius:0 0 17px 17px;top:22px}
+.screen{position:relative;overflow:hidden;border-radius:34px;background:#08111c;min-height:774px;padding:12px}
+.brand{padding:8px 8px 4px}
+.brand h1{font-size:18px;margin:0;line-height:1}.brand h1 span{color:var(--cyan)}
+.brand p{font-size:11px;margin:2px 0 0;color:var(--text2)}
+.service-tabs{display:flex;gap:7px;background:#162437;border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:5px;margin:4px 0 10px;overflow:auto;scrollbar-width:none}
+.service-tabs button{border:0;border-radius:999px;padding:6px 10px;color:#9ab0ca;background:transparent;font-size:10px;font-weight:700;white-space:nowrap;cursor:pointer}
+.service-tabs button.active{background:var(--cyan);color:#021010;box-shadow:0 0 18px rgba(0,208,198,.25)}
+.hero{border:1px solid rgba(0,208,198,.25);background:linear-gradient(135deg, rgba(0,208,198,.13), rgba(7,17,29,.95));border-radius:20px;padding:18px;margin:0 4px 10px}
+.hero .kicker,.card .kicker{letter-spacing:.14em;text-transform:uppercase;font-size:10px;font-weight:900;color:#ffb000}
+.hero h2{margin:4px 0 6px;font-size:21px;line-height:1.14;letter-spacing:-.02em}.hero p{margin:0;color:var(--text2);font-size:12px;line-height:1.35}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.actions button{height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.16);font-size:12px;font-weight:850;background:rgba(255,255,255,.04);color:var(--text)}.actions button:first-child{background:#fff;color:#008a82;border:0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:0 4px 10px}.stat{background:#152438;border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:10px 6px;text-align:center}.stat span{display:block;color:#647894;font-size:10px}.stat strong{display:block;font-size:20px;color:var(--cyan);line-height:1.1}
+.card{background:#121e2d;border:1px solid #22334b;border-radius:18px;padding:15px;margin:0 4px 10px;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
+.card h3{font-size:16px;margin:2px 0 10px;letter-spacing:-.015em}
+.network-map{width:100%;height:345px;border-radius:14px;background:linear-gradient(180deg,#06101a,#091520);position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.04)}
+.network-map svg{display:block;width:100%;height:100%}
+.map-note{display:flex;justify-content:space-between;align-items:center;color:#71859e;font-size:10px;margin-top:8px}.map-note b{color:#d9ecff}
+.bottom-nav{height:62px;background:#0d1722;border-top:1px solid rgba(255,255,255,.06);border-radius:0 0 28px 28px;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;padding:3px 4px;margin-top:10px}.bottom-nav div{text-align:center;color:#708299;font-size:10px}.bottom-nav div.active{color:var(--cyan);font-weight:800}.bottom-nav svg{display:block;margin:0 auto 3px;opacity:.88}
+@media(max-width:420px){.phone{border-radius:0;min-height:100vh;width:100vw;padding:0}.screen{border-radius:0;min-height:100vh}.notch{display:none}.network-map{height:330px}}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="notch"></div>
+    <div class="status"><span>03:52 PM</span><span>••••◦</span></div>
+
+    <div class="brand">
+      <h1>KTMB <span>Pulse</span></h1>
+      <p>Network overview</p>
+    </div>
+
+    <div class="service-tabs" id="serviceTabs"></div>
+
+    <section class="hero">
+      <span class="kicker">Network Overview</span>
+      <h2>The KTM network across Peninsular Malaysia</h2>
+      <p>Real peninsula boundary · Coordinate stations · API-ready live train layer</p>
+      <div class="actions"><button>Check crowd</button><button>Live feed</button></div>
+    </section>
+
+    <div class="stats">
+      <div class="stat"><span>Stations</span><strong>153</strong></div>
+      <div class="stat"><span>Services</span><strong>4+2</strong></div>
+      <div class="stat"><span>Data points</span><strong>8.2M</strong></div>
+    </div>
+
+    <section class="card">
+      <span class="kicker" style="color:#00d0c6">Live Network</span>
+      <h3>Active stations & services</h3>
+      <div class="network-map" id="nmap"></div>
+      <div class="map-note"><span><b>GIS outline</b> · hybrid rail readability</span><span id="trainCount">0 trains</span></div>
+    </section>
+
+    <div class="bottom-nav">
+      <div class="active">◎<br>Network</div><div>▥<br>Forecast</div><div>⌁<br>Live</div><div>▰<br>Stations</div><div>ⓘ<br>Info</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* KTMB PULSE — REAL PENINSULA HYBRID MAP V2
+   - Peninsula boundary is generated from real coastline/border vector geometry.
+   - Rail paths are drawn from ordered route sequences.
+   - Live trains can use actual lat/lon OR from/to/progress interpolation.
+   - Klang Valley inset keeps dense commuter stations readable on mobile.
+*/
+
+var AF = 'all';
+
+var CC = {
+  all: '#00D0C6',
+  komuter: '#0D9488',
+  utara: '#F59E0B',
+  ets: '#6366F1',
+  intercity: '#8B5CF6',
+  shuttle: '#EC4899',
+  brt: '#06B6D4'
+};
+
+var SERVICE_LABELS = [
+  ['all','All'], ['komuter','Komuter'], ['utara','Utara'], ['ets','ETS'],
+  ['intercity','Intercity'], ['shuttle','Shuttle'], ['brt','BRT']
+];
+
+/* Approximate station coordinates. Good enough for a mobile hybrid UX layer.
+   For production, replace coordinates with one verified source of truth. */
+var STATIONS = [
+  {n:'Padang Besar',lat:6.6616,lon:100.3217,H:true,v:['ets','utara']},
+  {n:'Alor Setar',lat:6.1210,lon:100.3679,H:true,v:['ets','utara']},
+  {n:'Sungai Petani',lat:5.6470,lon:100.4890,v:['ets','utara']},
+  {n:'Butterworth',lat:5.3940,lon:100.3660,H:true,v:['ets','utara']},
+  {n:'Bukit Mertajam',lat:5.3650,lon:100.4610,v:['ets','utara']},
+  {n:'Taiping',lat:4.8519,lon:100.7416,H:true,v:['ets','utara']},
+  {n:'Kuala Kangsar',lat:4.7747,lon:100.9348,v:['ets','utara']},
+  {n:'Ipoh',lat:4.5975,lon:101.0901,H:true,v:['ets','utara']},
+  {n:'Batu Gajah',lat:4.4695,lon:101.0411,v:['ets']},
+  {n:'Tapah Road',lat:4.1654,lon:101.1995,v:['ets']},
+  {n:'Tanjung Malim',lat:3.6840,lon:101.5180,H:true,v:['ets','komuter']},
+  {n:'Rawang',lat:3.3213,lon:101.5754,H:true,v:['ets','komuter']},
+  {n:'Sungai Buloh',lat:3.2063,lon:101.5809,v:['komuter']},
+  {n:'Batu Caves',lat:3.2379,lon:101.6817,H:true,v:['komuter']},
+  {n:'Kepong Sentral',lat:3.1900,lon:101.5965,v:['komuter']},
+  {n:'Kuala Lumpur',lat:3.1390,lon:101.6869,H:true,v:['komuter']},
+  {n:'KL Sentral',lat:3.1340,lon:101.6869,H:true,v:['ets','komuter']},
+  {n:'Subang Jaya',lat:3.0840,lon:101.5880,H:true,v:['komuter']},
+  {n:'Klang',lat:3.0434,lon:101.4496,H:true,v:['komuter']},
+  {n:'Bandar Tasik Selatan',lat:3.0725,lon:101.7147,H:true,v:['ets','komuter']},
+  {n:'Kajang',lat:2.9920,lon:101.7909,H:true,v:['ets','komuter']},
+  {n:'Seremban',lat:2.7258,lon:101.9381,H:true,v:['ets','komuter']},
+  {n:'Tampin',lat:2.4703,lon:102.2308,H:true,v:['ets','intercity']},
+  {n:'Gemas',lat:2.5838,lon:102.6190,H:true,v:['ets','intercity']},
+  {n:'Segamat',lat:2.5140,lon:102.8158,H:true,v:['intercity']},
+  {n:'Kluang',lat:2.0305,lon:103.3179,H:true,v:['intercity']},
+  {n:'Kempas Baru',lat:1.5410,lon:103.6927,H:true,v:['intercity','shuttle']},
+  {n:'JB Sentral',lat:1.4621,lon:103.7644,H:true,v:['intercity','shuttle']},
+  {n:'Mentakab',lat:3.4856,lon:102.3483,H:true,v:['intercity']},
+  {n:'Jerantut',lat:3.9360,lon:102.3620,v:['intercity']},
+  {n:'Kuala Lipis',lat:4.1843,lon:102.0468,H:true,v:['intercity']},
+  {n:'Gua Musang',lat:4.8840,lon:101.9680,H:true,v:['intercity']},
+  {n:'Dabong',lat:5.3770,lon:102.0150,v:['intercity']},
+  {n:'Kuala Krai',lat:5.5314,lon:102.1997,H:true,v:['intercity']},
+  {n:'Wakaf Bharu',lat:6.1190,lon:102.1980,H:true,v:['intercity']},
+  {n:'Tumpat',lat:6.1970,lon:102.1710,H:true,v:['intercity']}
+];
+
+var stationByName = {};
+STATIONS.forEach(function(s){ stationByName[s.n] = s; });
+
+var ROUTES = [
+  {id:'west-coast', name:'West Coast ETS', services:['ets'], color:'ets', width:3.2, seq:['Padang Besar','Alor Setar','Sungai Petani','Butterworth','Bukit Mertajam','Taiping','Kuala Kangsar','Ipoh','Batu Gajah','Tapah Road','Tanjung Malim','Rawang','KL Sentral','Bandar Tasik Selatan','Kajang','Seremban','Tampin','Gemas']},
+  {id:'northern-komuter', name:'Northern Komuter', services:['utara'], color:'utara', width:2.6, seq:['Padang Besar','Alor Setar','Sungai Petani','Butterworth','Bukit Mertajam','Taiping','Kuala Kangsar']},
+  {id:'kv-port', name:'Klang Valley Port Klang', services:['komuter'], color:'komuter', width:2.4, seq:['Klang','Subang Jaya','KL Sentral','Kuala Lumpur']},
+  {id:'kv-seremban', name:'Klang Valley Seremban', services:['komuter'], color:'komuter', width:2.4, seq:['Rawang','Sungai Buloh','Kepong Sentral','Kuala Lumpur','KL Sentral','Bandar Tasik Selatan','Kajang','Seremban']},
+  {id:'kv-batu-caves', name:'Batu Caves Branch', services:['komuter'], color:'komuter', width:2.2, seq:['Batu Caves','Kuala Lumpur','KL Sentral']},
+  {id:'south-intercity', name:'Southern Intercity', services:['intercity','shuttle'], color:'intercity', width:2.8, seq:['Gemas','Segamat','Kluang','Kempas Baru','JB Sentral']},
+  {id:'east-coast', name:'East Coast Intercity', services:['intercity'], color:'intercity', width:2.8, seq:['Gemas','Mentakab','Jerantut','Kuala Lipis','Gua Musang','Dabong','Kuala Krai','Wakaf Bharu','Tumpat']}
+];
+
+/* Route paths are station-sequenced hybrid lines. For survey-grade railway geometry, replace ROUTES with GTFS shapes / rail GIS polylines.
+
+   Replace this with your API data. Supports either:
+   1) {lat,lon} direct live position, or
+   2) {routeId,from,to,progress} segment interpolation. */
+var LIVE_TRAINS = [
+  {id:'EG9321',type:'ets',routeId:'west-coast',from:'Tanjung Malim',to:'Ipoh',progress:.42,speed:126,bearing:342},
+  {id:'KC2107',type:'komuter',routeId:'kv-seremban',from:'KL Sentral',to:'Bandar Tasik Selatan',progress:.58,speed:52,bearing:156},
+  {id:'IC56',type:'intercity',routeId:'east-coast',from:'Gua Musang',to:'Kuala Lipis',progress:.32,speed:68,bearing:194},
+  {id:'SH19',type:'shuttle',routeId:'south-intercity',from:'Kempas Baru',to:'JB Sentral',progress:.72,speed:47,bearing:145}
+];
+
+window.setKTMBTrains = function(list){
+  LIVE_TRAINS = Array.isArray(list) ? list : [];
+  drawMap();
+};
+
+var VIEW = {w:360,h:430,pad:18,lonMin:99.38,lonMax:104.38,latMin:1.18,latMax:6.84};
+function project(lat, lon){
+  var x = VIEW.pad + ((lon - VIEW.lonMin) / (VIEW.lonMax - VIEW.lonMin)) * (VIEW.w - VIEW.pad*2);
+  var y = VIEW.pad + ((VIEW.latMax - lat) / (VIEW.latMax - VIEW.latMin)) * (VIEW.h - VIEW.pad*2);
+  return {x:x,y:y};
+}
+
+/* V2 outline source: local GIS coastline + Malaysia-Thailand country border crop.
+   This is not a hand-drawn blob. It is simplified for mobile, then styled in SVG.
+   Coordinates are lon/lat. Islands included: Langkawi + Penang. */
+var PENINSULA_MAIN = [[102.0956,6.2347],[102.2484,6.1678],[102.2362,6.2049],[102.2558,6.207],[102.35,6.1645],[102.4971,5.8692],[102.6,5.8162],[102.8558,5.5779],[102.9592,5.5412],[103.1087,5.4024],[103.1421,5.3492],[103.09,5.3104],[103.1513,5.34],[103.4429,4.79],[103.3996,4.7858],[103.4304,4.7875],[103.4521,4.6924],[103.4371,4.6583],[103.4779,4.5333],[103.4463,4.4716],[103.4937,4.3158],[103.4487,4.2458],[103.4463,4.1842],[103.3879,4.1167],[103.4404,3.9692],[103.3983,3.9712],[103.3696,3.9283],[103.3746,3.8092],[103.335,3.8162],[103.3238,3.805],[103.3421,3.8125],[103.3279,3.7391],[103.4004,3.6149],[103.3846,3.6058],[103.4638,3.5375],[103.4133,3.5071],[103.3867,3.5229],[103.3954,3.5],[103.4796,3.515],[103.4246,3.3642],[103.4504,3.1308],[103.4296,2.9574],[103.4804,2.8316],[103.4579,2.825],[103.4938,2.8209],[103.52,2.7679],[103.6304,2.6833],[103.6183,2.6646],[103.6641,2.6746],[103.7384,2.6396],[103.76,2.6596],[103.767,2.6225],[103.827,2.5925],[103.8496,2.5149],[103.8204,2.4992],[103.8346,2.4599],[103.9646,2.32],[103.9854,2.2533],[103.9612,2.2517],[103.9604,2.2158],[104.1137,1.9776],[104.1145,1.8783],[104.1629,1.8558],[104.2671,1.615],[104.2996,1.4441],[104.2766,1.3679],[104.2041,1.342],[104.0925,1.3721],[104.1216,1.4121],[104.0421,1.4691],[104.065,1.5154],[104.1212,1.5391],[104.0525,1.5254],[104.0451,1.5004],[104.0204,1.5841],[103.9766,1.6495],[103.9408,1.6629],[104.0196,1.5318],[104.0008,1.4404],[103.8966,1.4404],[103.7982,1.5045],[103.7608,1.4595],[103.7141,1.4837],[103.6025,1.3504],[103.5516,1.3595],[103.5462,1.4283],[103.515,1.4245],[103.5479,1.3391],[103.5117,1.2695],[103.4421,1.3308],[103.3449,1.5604],[102.9258,1.7637],[102.8871,1.7941],[102.9083,1.8279],[102.7716,1.8771],[102.69,1.8687],[102.5496,2.0383],[102.5642,2.0563],[102.49,2.1113],[102.1574,2.2213],[102.0608,2.3471],[101.9746,2.3792],[101.9967,2.4096],[101.9325,2.4321],[101.8525,2.4112],[101.8529,2.48],[101.7904,2.53],[101.7741,2.6021],[101.6958,2.6021],[101.4858,2.6937],[101.4112,2.795],[101.4167,2.8321],[101.4009,2.8129],[101.2913,2.8467],[101.2837,2.8808],[101.3221,2.9192],[101.2712,2.9025],[101.3621,3.0042],[101.3662,3.055],[101.3112,3.1467],[101.3021,3.2633],[101.242,3.3275],[101.2467,3.3621],[101.1621,3.4025],[101.0346,3.6275],[100.8121,3.7942],[100.8242,3.8504],[100.9075,3.8671],[100.7708,3.8521],[100.7012,3.92],[100.7208,4.0121],[100.7966,3.9996],[100.8525,4.0429],[100.8596,3.9741],[100.9088,3.9625],[100.8875,3.9904],[100.8662,3.975],[100.8583,4.0488],[100.7717,4.0137],[100.7538,4.1099],[100.6949,4.1646],[100.6275,4.1629],[100.6038,4.1958],[100.5921,4.2491],[100.6467,4.2387],[100.6621,4.2725],[100.6209,4.2504],[100.6083,4.2762],[100.6042,4.2562],[100.5579,4.315],[100.5854,4.4291],[100.6171,4.4508],[100.6179,4.53],[100.6479,4.5491],[100.6629,4.6042],[100.6217,4.5596],[100.5796,4.6066],[100.6637,4.6841],[100.5737,4.68],[100.5746,4.7567],[100.635,4.7629],[100.617,4.78],[100.6421,4.8016],[100.5633,4.7987],[100.5488,4.8525],[100.5762,4.8675],[100.47,4.9446],[100.4733,4.9204],[100.4525,4.9246],[100.4129,4.9841],[100.4279,5.0116],[100.3746,5.0316],[100.442,5.2183],[100.4087,5.2675],[100.4371,5.2858],[100.3671,5.4],[100.3779,5.5267],[100.3412,5.5767],[100.3645,5.5792],[100.342,5.5841],[100.3345,5.6608],[100.3758,5.6754],[100.4058,5.6379],[100.4204,5.6467],[100.3479,5.705],[100.3695,5.7775],[100.3254,6.0458],[100.2428,6.2099],[100.1703,6.2849],[100.1202,6.4157],[100.1714,6.4767],[100.1958,6.7025],[100.3028,6.6989],[100.3369,6.5828],[100.4369,6.5156],[100.4989,6.5231],[100.6608,6.4475],[100.7542,6.5019],[100.7656,6.4519],[100.8336,6.4194],[100.8575,6.2344],[100.9514,6.2397],[100.9897,6.2775],[101.0333,6.2439],[101.1156,6.2489],[101.1217,6.1872],[101.0756,6.1506],[101.12,6.0983],[101.1194,5.9844],[101.1011,5.9269],[101.0358,5.8961],[100.99,5.7881],[101.1458,5.6311],[101.2561,5.7058],[101.2856,5.8078],[101.3514,5.8083],[101.4106,5.86],[101.57,5.9167],[101.6589,5.8606],[101.6917,5.7636],[101.7625,5.7889],[101.8339,5.7433],[101.9439,5.8619],[101.9511,5.9736],[102.0917,6.1106]];
+var PENINSULA_ISLANDS = [[[99.6541,6.3629],[99.6404,6.4316],[99.7342,6.4337],[99.735,6.4087],[99.7491,6.4313],[99.7899,6.4196],[99.8166,6.4554],[99.8529,6.4467],[99.8492,6.4613],[99.8237,6.4666],[99.8325,6.4812],[99.8629,6.4625],[99.8575,6.4345],[99.8967,6.4137],[99.9016,6.3921],[99.912,6.3966],[99.9029,6.3667],[99.9187,6.3367],[99.8666,6.3087],[99.8667,6.2921],[99.8458,6.3262],[99.8125,6.3212],[99.7892,6.2896],[99.7592,6.2846],[99.7299,6.2588],[99.7196,6.355]],[[100.1787,5.475],[100.2175,5.4654],[100.2575,5.4879],[100.2758,5.4837],[100.3116,5.4696],[100.3137,5.4442],[100.3471,5.4275],[100.3221,5.3975],[100.2866,5.2629],[100.23,5.2921],[100.1845,5.275],[100.1871,5.3108],[100.1996,5.3142],[100.1995,5.4225],[100.1812,5.4375]]];
+
+function pathFromLonLat(points){
+  return points.map(function(ll,i){ var p = project(ll[1], ll[0]); return (i?'L':'M') + p.x.toFixed(1)+','+p.y.toFixed(1); }).join(' ') + ' Z';
+}
+
+function drawPeninsula(){
+  var out = '';
+  var main = pathFromLonLat(PENINSULA_MAIN);
+  out += '<path d="'+main+'" fill="rgba(0,208,198,.060)" stroke="rgba(0,208,198,.30)" stroke-width="1.15"/>';
+  out += '<path d="'+main+'" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="3.2" opacity=".18"/>';
+  PENINSULA_ISLANDS.forEach(function(poly){
+    var p = pathFromLonLat(poly);
+    out += '<path d="'+p+'" fill="rgba(245,158,11,.105)" stroke="rgba(245,158,11,.42)" stroke-width=".85"/>';
+  });
+  return out;
+}
+
+function routePoints(route){
+  return route.seq.map(function(name){ var s = stationByName[name]; return project(s.lat, s.lon); });
+}
+
+function polyPath(points){
+  return points.map(function(p,i){ return (i?'L':'M') + p.x.toFixed(1)+','+p.y.toFixed(1); }).join(' ');
+}
+
+function visibleRoute(route){
+  return AF === 'all' || route.services.indexOf(AF) !== -1;
+}
+function visibleStation(station){
+  return AF === 'all' || station.v.indexOf(AF) !== -1;
+}
+function routeById(id){
+  for(var i=0;i<ROUTES.length;i++) if(ROUTES[i].id === id) return ROUTES[i];
+  return null;
+}
+function trainVisible(t){
+  return AF === 'all' || t.type === AF || (AF === 'intercity' && t.type === 'shuttle');
+}
+function trainPoint(t){
+  if(typeof t.lat === 'number' && typeof t.lon === 'number') return project(t.lat, t.lon);
+  var a = stationByName[t.from], b = stationByName[t.to];
+  if(!a || !b) return null;
+  var pa = project(a.lat,a.lon), pb = project(b.lat,b.lon), pr = Math.max(0, Math.min(1, t.progress || 0));
+  return {x:pa.x + (pb.x-pa.x)*pr, y:pa.y + (pb.y-pa.y)*pr};
+}
+function escapeXml(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c];});}
+
+var LABELS = {
+  'Padang Besar':[-4,-17,'middle'], 'Alor Setar':[10,-8,'start'], 'Butterworth':[10,12,'start'],
+  'Ipoh':[12,-8,'start'], 'Tanjung Malim':[8,10,'start'], 'Rawang':[9,-10,'start'],
+  'KL Sentral':[-16,10,'end'], 'Bandar Tasik Selatan':[10,13,'start'], 'Seremban':[12,4,'start'],
+  'Tampin':[8,-12,'start'], 'Gemas':[10,-10,'start'], 'JB Sentral':[-12,-12,'end'],
+  'Kuala Lipis':[10,-9,'start'], 'Gua Musang':[10,-8,'start'], 'Kuala Krai':[10,-8,'start'],
+  'Wakaf Bharu':[10,-8,'start'], 'Tumpat':[10,-2,'start'], 'Klang':[-10,-10,'end'], 'Batu Caves':[8,-8,'start']
+};
+
+function labelSvg(s){
+  if(!s.H) return '';
+  var p = project(s.lat,s.lon), cfg = LABELS[s.n] || [8,-10,'start'];
+  var txt = escapeXml(s.n), tw = Math.max(38, txt.length * 5.2), h = 13;
+  var x = p.x + cfg[0], y = p.y + cfg[1], anchor = cfg[2];
+  var rx = anchor === 'end' ? x - tw - 6 : anchor === 'middle' ? x - tw/2 - 3 : x;
+  var tx = anchor === 'end' ? rx + tw + 3 : anchor === 'middle' ? rx + tw/2 + 3 : rx + 4;
+  var color = CC[s.v[0]] || '#fff';
+  return '<rect x="'+rx.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+(tw+6).toFixed(1)+'" height="'+h+'" rx="4" fill="rgba(6,13,22,.86)" stroke="'+color+'" stroke-width=".55" opacity=".92"/>'+
+         '<text x="'+tx.toFixed(1)+'" y="'+(y+9.4).toFixed(1)+'" text-anchor="'+anchor+'" font-size="7" font-weight="800" fill="'+color+'">'+txt+'</text>';
+}
+
+function drawLegend(){
+  var keys = [['komuter','Komuter'],['utara','Utara'],['ets','ETS'],['intercity','Intercity'],['shuttle','Shuttle'],['brt','BRT']];
+  var x = 10, y = 394, out = '<g opacity=".98"><rect x="8" y="382" width="236" height="36" rx="8" fill="rgba(6,13,22,.88)" stroke="rgba(255,255,255,.08)"/>';
+  keys.forEach(function(k,i){
+    var cx = x + (i%3)*78, cy = y + Math.floor(i/3)*15;
+    out += '<circle cx="'+cx+'" cy="'+cy+'" r="3.4" fill="'+CC[k[0]]+'"/>';
+    out += '<text x="'+(cx+7)+'" y="'+(cy+3)+'" font-size="7.5" fill="#8fa3bd" font-weight="700">'+k[1]+'</text>';
+  });
+  return out + '</g>';
+}
+
+function drawKlangInset(){
+  if(!(AF === 'all' || AF === 'komuter' || AF === 'ets')) return '';
+  var box = {x:198,y:268,w:148,h:146,lonMin:101.36,lonMax:101.84,latMin:2.92,latMax:3.30};
+  function kp(s){
+    return {x: box.x + ((s.lon-box.lonMin)/(box.lonMax-box.lonMin))*box.w,
+            y: box.y + ((box.latMax-s.lat)/(box.latMax-box.latMin))*box.h};
+  }
+  var names = ['Klang','Subang Jaya','Sungai Buloh','Batu Caves','Kepong Sentral','Kuala Lumpur','KL Sentral','Bandar Tasik Selatan','Kajang'];
+  var keep = {};
+  names.forEach(function(n){keep[n]=true;});
+  var out = '<g><rect x="'+box.x+'" y="'+box.y+'" width="'+box.w+'" height="'+box.h+'" rx="12" fill="rgba(5,12,21,.94)" stroke="rgba(0,208,198,.20)"/>';
+  out += '<text x="'+(box.x+10)+'" y="'+(box.y+15)+'" font-size="8" font-weight="900" fill="#00D0C6" letter-spacing="1.1">KLANG VALLEY INSET</text>';
+
+  // Filter routes that cover KV area
+  ROUTES.filter(function(r){return (r.services.indexOf('komuter') !== -1 || r.services.indexOf('ets') !== -1);}).forEach(function(r){
+    var pts = [];
+    r.seq.forEach(function(n){ if(keep[n]) pts.push(kp(stationByName[n])); });
+    if(pts.length > 1) out += '<path d="'+polyPath(pts)+'" fill="none" stroke="'+CC[r.color]+'" stroke-width="1.8" opacity=".72" stroke-linecap="round" stroke-linejoin="round"/>';
+  });
+  names.forEach(function(n){
+    var s = stationByName[n]; if(!s) return;
+    var p = kp(s), r = s.H ? 3.2 : 2.1;
+    out += '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+r+'" fill="'+CC[s.v[0]]+'" stroke="rgba(255,255,255,.45)" stroke-width=".5"><title>'+escapeXml(n)+'</title></circle>';
+  });
+  ['KL Sentral','Bandar Tasik Selatan','Kajang','Klang'].forEach(function(n){
+    var s=stationByName[n], p=kp(s), shortName = n === 'Bandar Tasik Selatan' ? 'BTS' : n;
+    out += '<text x="'+(p.x+5).toFixed(1)+'" y="'+(p.y-4).toFixed(1)+'" font-size="6.6" font-weight="800" fill="#bcd0e8">'+escapeXml(shortName)+'</text>';
+  });
+
+  // Trains in KV area
+  LIVE_TRAINS.filter(trainVisible).forEach(function(t){
+    var p = null;
+    if(typeof t.lat === 'number' && typeof t.lon === 'number'){
+      if(t.lon>=box.lonMin && t.lon<=box.lonMax && t.lat>=box.latMin && t.lat<=box.latMax) p = kp({lat:t.lat,lon:t.lon});
+    } else if(keep[t.from] && keep[t.to]){
+      var a=kp(stationByName[t.from]), b=kp(stationByName[t.to]), pr=Math.max(0,Math.min(1,t.progress||0));
+      p={x:a.x+(b.x-a.x)*pr,y:a.y+(b.y-a.y)*pr};
+    }
+    if(p) out += '<g><circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="5.2" fill="'+CC[t.type]+'" opacity=".22"/><circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="2.8" fill="'+CC[t.type]+'" stroke="#fff" stroke-width=".45"/></g>';
+  });
+  return out + '</g>';
+}
+
+function drawMap(){
+  var c = document.getElementById('nmap');
+
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+VIEW.w+' '+VIEW.h+'" preserveAspectRatio="xMidYMid meet">';
+  svg += '<defs>';
+  Object.keys(CC).forEach(function(k){
+    svg += '<radialGradient id="glow-'+k+'"><stop offset="0%" stop-color="'+CC[k]+'" stop-opacity="1"/><stop offset="100%" stop-color="'+CC[k]+'" stop-opacity="0"/></radialGradient>';
+  });
+  svg += '<filter id="soft"><feGaussianBlur stdDeviation="1.5"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
+  svg += '<filter id="hubPulse"><feGaussianBlur stdDeviation="4"/></filter>';
+  svg += '</defs>';
+
+  svg += '<rect width="360" height="430" fill="#06101a"/>';
+  for(var x=40;x<VIEW.w;x+=40) svg += '<line x1="'+x+'" y1="0" x2="'+x+'" y2="430" stroke="rgba(255,255,255,.025)"/>';
+  for(var y=40;y<VIEW.h;y+=40) svg += '<line x1="0" y1="'+y+'" x2="360" y2="'+y+'" stroke="rgba(255,255,255,.025)"/>';
+
+  svg += drawPeninsula();
+
+  // Route glow
+  ROUTES.filter(visibleRoute).forEach(function(r){
+    var pts = routePoints(r);
+    svg += '<path d="'+polyPath(pts)+'" fill="none" stroke="'+CC[r.color]+'" stroke-width="'+(r.width+5)+'" opacity=".08" stroke-linecap="round" stroke-linejoin="round"/>';
+  });
+
+  // Route lines
+  ROUTES.filter(visibleRoute).forEach(function(r){
+    var pts = routePoints(r);
+    svg += '<path d="'+polyPath(pts)+'" fill="none" stroke="'+CC[r.color]+'" stroke-width="'+r.width+'" opacity=".72" stroke-linecap="round" stroke-linejoin="round"><title>'+escapeXml(r.name)+'</title></path>';
+  });
+
+  // Hub glow pulses
+  STATIONS.filter(visibleStation).filter(function(s){return s.H;}).forEach(function(s){
+    var p = project(s.lat,s.lon), color = CC[s.v[0]];
+    svg += '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="11" fill="'+color+'" opacity=".18" filter="url(#hubPulse)"><animate attributeName="r" values="8;15;8" dur="2.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".24;.04;.24" dur="2.6s" repeatCount="indefinite"/></circle>';
+  });
+
+  // Station nodes
+  STATIONS.filter(visibleStation).forEach(function(s){
+    var p = project(s.lat,s.lon), color = CC[s.v[0]], r = s.H ? 4.4 : 2.4;
+    svg += '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+r+'" fill="'+color+'" stroke="rgba(255,255,255,.48)" stroke-width=".55" filter="url(#soft)"><title>'+escapeXml(s.n)+'</title></circle>';
+  });
+
+  // Labels
+  STATIONS.filter(visibleStation).forEach(function(s){ svg += labelSvg(s); });
+
+  // Live trains
+  var shownTrains = LIVE_TRAINS.filter(trainVisible);
+  shownTrains.forEach(function(t){
+    var p = trainPoint(t); if(!p) return;
+    var color = CC[t.type] || '#fff';
+    var angle = typeof t.bearing === 'number' ? t.bearing : 0;
+    svg += '<g transform="translate('+p.x.toFixed(1)+' '+p.y.toFixed(1)+') rotate('+angle+')">';
+    svg += '<circle r="9" fill="url(#glow-'+t.type+')" opacity=".55"/>';
+    svg += '<path d="M0,-6 L4.4,5.2 L0,3 L-4.4,5.2 Z" fill="'+color+'" stroke="white" stroke-width=".55"><title>'+escapeXml(t.id)+' · '+escapeXml(t.type)+' · '+(t.speed||0)+' km/h</title></path>';
+    svg += '</g>';
+  });
+
+  svg += drawKlangInset();
+  svg += drawLegend();
+  svg += '<text x="16" y="24" font-size="9" font-weight="900" letter-spacing="1.4" fill="#00D0C6">PENINSULAR MALAYSIA · GIS OUTLINE</text>';
+  svg += '</svg>';
+  c.innerHTML = svg;
+  document.getElementById('trainCount').textContent = shownTrains.length + (shownTrains.length===1 ? ' train' : ' trains');
+}
+
+function renderTabs(){
+  var wrap = document.getElementById('serviceTabs');
+  wrap.innerHTML = SERVICE_LABELS.map(function(s){
+    return '<button data-service="'+s[0]+'" class="'+(AF===s[0]?'active':'')+'">'+s[1]+'</button>';
+  }).join('');
+  wrap.querySelectorAll('button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      AF = btn.getAttribute('data-service');
+      renderTabs();
+      drawMap();
+    });
+  });
+}
+
+window.addEventListener('resize', drawMap);
+renderTabs();
+drawMap();
+</script>
+</body>
+</html>

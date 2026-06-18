@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" role="img" aria-label="KTMB Pulse app logo">
+  <defs>
+    <linearGradient id="bgGrad" x1="160" y1="96" x2="864" y2="944" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#111B29"/>
+      <stop offset="58%" stop-color="#080D14"/>
+      <stop offset="100%" stop-color="#05080D"/>
+    </linearGradient>
+
+    <radialGradient id="bgHalo" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(512 306) scale(428 428)">
+      <stop offset="0%" stop-color="#14B8A6" stop-opacity="0.20"/>
+      <stop offset="40%" stop-color="#0D9488" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#080D14" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="floorHalo" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(522 736) scale(316 316)">
+      <stop offset="0%" stop-color="#0D9488" stop-opacity="0.16"/>
+      <stop offset="52%" stop-color="#14B8A6" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#080D14" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="mapFill" x1="340" y1="160" x2="660" y2="848" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F3D45" stop-opacity="0.92"/>
+      <stop offset="46%" stop-color="#0D9488" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#08161D" stop-opacity="0.96"/>
+    </linearGradient>
+
+    <linearGradient id="pulseGrad" x1="136" y1="544" x2="888" y2="544" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0D9488"/>
+      <stop offset="42%" stop-color="#14B8A6"/>
+      <stop offset="74%" stop-color="#5EEAD4"/>
+      <stop offset="100%" stop-color="#0D9488"/>
+    </linearGradient>
+
+    <linearGradient id="trackDark" x1="136" y1="544" x2="888" y2="544" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#061018"/>
+      <stop offset="50%" stop-color="#0B2830"/>
+      <stop offset="100%" stop-color="#061018"/>
+    </linearGradient>
+
+    <linearGradient id="trainGrad" x1="148" y1="476" x2="274" y2="556" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#12343C"/>
+      <stop offset="42%" stop-color="#0D9488"/>
+      <stop offset="100%" stop-color="#14B8A6"/>
+    </linearGradient>
+
+    <path
+      id="peninsulaPath"
+      d="M500 160C541 160 576 172 599 193C618 211 629 235 632 260C636 289 629 318 620 345C612 370 612 394 622 416C633 439 639 466 635 493C630 524 619 553 606 582C593 611 586 640 588 670C590 700 584 728 571 754C557 782 535 804 509 819C482 835 454 842 426 839C399 836 377 826 361 807C346 790 338 768 334 744C329 719 322 695 311 673C300 650 292 626 289 602C286 575 288 548 296 522C304 496 309 471 308 446C307 420 301 395 296 370C290 344 289 318 296 294C303 269 315 248 331 230C347 212 367 196 391 185C416 173 447 162 500 160Z"/>
+
+    <clipPath id="peninsulaClip">
+      <use href="#peninsulaPath" xlink:href="#peninsulaPath"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1024" height="1024" rx="232" fill="url(#bgGrad)"/>
+  <rect width="1024" height="1024" rx="232" fill="url(#bgHalo)"/>
+  <rect width="1024" height="1024" rx="232" fill="url(#floorHalo)"/>
+
+  <circle cx="512" cy="520" r="382" fill="none" stroke="#14B8A6" stroke-opacity="0.06" stroke-width="2"/>
+  <circle cx="512" cy="520" r="296" fill="#0B141C" opacity="0.22"/>
+
+  <g opacity="0.06" stroke="#14B8A6" stroke-width="1.4">
+    <path d="M112 248H912"/>
+    <path d="M112 776H912"/>
+    <path d="M248 112V912"/>
+    <path d="M776 112V912"/>
+  </g>
+
+  <g opacity="0.24">
+    <use href="#peninsulaPath" xlink:href="#peninsulaPath" transform="translate(10 12)" fill="#061118"/>
+    <use href="#peninsulaPath" xlink:href="#peninsulaPath" fill="url(#mapFill)" stroke="#14B8A6" stroke-opacity="0.20" stroke-width="3.2"/>
+    <use href="#peninsulaPath" xlink:href="#peninsulaPath" fill="none" stroke="#5EEAD4" stroke-opacity="0.08" stroke-width="1.6"/>
+  </g>
+
+  <g clip-path="url(#peninsulaClip)">
+    <g opacity="0.20" stroke="#14B8A6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M350 226L404 262L455 250L503 283L549 339L579 407L588 476L579 545L552 611L512 670L468 722L422 776"/>
+      <path d="M394 210L388 286L399 363L417 435L430 511L426 585L409 665"/>
+      <path d="M521 239L548 310L567 382L572 458L563 534L545 610"/>
+      <path d="M575 322L621 346L648 389"/>
+    </g>
+
+    <g>
+      <circle cx="350" cy="226" r="7" fill="#14B8A6" opacity="0.16"/>
+      <circle cx="350" cy="226" r="3.6" fill="#14B8A6" opacity="0.88"/>
+      <circle cx="404" cy="262" r="6" fill="#14B8A6" opacity="0.13"/>
+      <circle cx="404" cy="262" r="3.2" fill="#5EEAD4" opacity="0.82"/>
+      <circle cx="455" cy="250" r="6" fill="#14B8A6" opacity="0.13"/>
+      <circle cx="455" cy="250" r="3.2" fill="#5EEAD4" opacity="0.82"/>
+      <circle cx="503" cy="283" r="7" fill="#14B8A6" opacity="0.16"/>
+      <circle cx="503" cy="283" r="3.6" fill="#14B8A6" opacity="0.88"/>
+      <circle cx="549" cy="339" r="7" fill="#14B8A6" opacity="0.16"/>
+      <circle cx="549" cy="339" r="3.6" fill="#14B8A6" opacity="0.88"/>
+      <circle cx="579" cy="407" r="7" fill="#14B8A6" opacity="0.16"/>
+      <circle cx="579" cy="407" r="3.6" fill="#14B8A6" opacity="0.88"/>
+      <circle cx="588" cy="476" r="7" fill="#14B8A6" opacity="0.16"/>
+      <circle cx="588" cy="476" r="3.6" fill="#14B8A6" opacity="0.88"/>
+      <circle cx="579" cy="545" r="7" fill="#14B8A6" opacity="0.16"/>
+      <circle cx="579" cy="545" r="3.6" fill="#14B8A6" opacity="0.88"/>
+      <circle cx="552" cy="611" r="7" fill="#14B8A6" opacity="0.16"/>
+      <circle cx="552" cy="611" r="3.6" fill="#14B8A6" opacity="0.88"/>
+      <circle cx="512" cy="670" r="7" fill="#14B8A6" opacity="0.16"/>
+      <circle cx="512" cy="670" r="3.6" fill="#14B8A6" opacity="0.88"/>
+      <circle cx="468" cy="722" r="7" fill="#14B8A6" opacity="0.16"/>
+      <circle cx="468" cy="722" r="3.6" fill="#14B8A6" opacity="0.88"/>
+      <circle cx="422" cy="776" r="7" fill="#14B8A6" opacity="0.16"/>
+      <circle cx="422" cy="776" r="3.6" fill="#14B8A6" opacity="0.88"/>
+      <circle cx="621" cy="346" r="5.5" fill="#14B8A6" opacity="0.14"/>
+      <circle cx="621" cy="346" r="2.9" fill="#5EEAD4" opacity="0.78"/>
+      <circle cx="648" cy="389" r="5.5" fill="#14B8A6" opacity="0.14"/>
+      <circle cx="648" cy="389" r="2.9" fill="#5EEAD4" opacity="0.78"/>
+    </g>
+  </g>
+
+  <g transform="rotate(-7 512 544)">
+    <path d="M136 530H888" stroke="url(#trackDark)" stroke-opacity="0.82" stroke-width="28" stroke-linecap="round"/>
+    <path d="M136 558H888" stroke="url(#trackDark)" stroke-opacity="0.82" stroke-width="28" stroke-linecap="round"/>
+
+    <path
+      d="M136 544H246C264 544 280 544 298 544C316 544 324 494 340 494C356 494 362 606 378 606C394 606 406 430 422 430C438 430 446 590 462 590C478 590 490 520 506 520C522 520 536 544 556 544H888"
+      fill="none"
+      stroke="url(#pulseGrad)"
+      stroke-width="18"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M136 544H246C264 544 280 544 298 544C316 544 324 494 340 494C356 494 362 606 378 606C394 606 406 430 422 430C438 430 446 590 462 590C478 590 490 520 506 520C522 520 536 544 556 544H888"
+      fill="none"
+      stroke="#E6FFFB"
+      stroke-opacity="0.82"
+      stroke-width="5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <g stroke="#14B8A6" stroke-opacity="0.20" stroke-width="4" stroke-linecap="round">
+      <path d="M206 530V558"/>
+      <path d="M286 530V558"/>
+      <path d="M366 530V558"/>
+      <path d="M446 530V558"/>
+      <path d="M526 530V558"/>
+      <path d="M606 530V558"/>
+      <path d="M686 530V558"/>
+      <path d="M766 530V558"/>
+      <path d="M846 530V558"/>
+    </g>
+
+    <g>
+      <circle cx="206" cy="544" r="16" fill="#14B8A6" opacity="0.14"/>
+      <circle cx="206" cy="544" r="5.6" fill="#5EEAD4"/>
+
+      <circle cx="286" cy="544" r="16" fill="#14B8A6" opacity="0.14"/>
+      <circle cx="286" cy="544" r="5.6" fill="#5EEAD4"/>
+
+      <circle cx="366" cy="544" r="18" fill="#14B8A6" opacity="0.15"/>
+      <circle cx="366" cy="544" r="6.2" fill="#14B8A6"/>
+
+      <circle cx="422" cy="430" r="44" fill="#14B8A6" opacity="0.13"/>
+      <circle cx="422" cy="430" r="21" fill="#0A1920" opacity="0.88" stroke="#14B8A6" stroke-opacity="0.45" stroke-width="4"/>
+      <circle cx="422" cy="430" r="9" fill="#5EEAD4"/>
+
+      <circle cx="506" cy="544" r="18" fill="#14B8A6" opacity="0.15"/>
+      <circle cx="506" cy="544" r="6.2" fill="#14B8A6"/>
+
+      <circle cx="606" cy="544" r="16" fill="#14B8A6" opacity="0.14"/>
+      <circle cx="606" cy="544" r="5.6" fill="#5EEAD4"/>
+
+      <circle cx="706" cy="544" r="16" fill="#14B8A6" opacity="0.14"/>
+      <circle cx="706" cy="544" r="5.6" fill="#5EEAD4"/>
+
+      <circle cx="806" cy="544" r="16" fill="#14B8A6" opacity="0.14"/>
+      <circle cx="806" cy="544" r="5.6" fill="#5EEAD4"/>
+    </g>
+
+    <g transform="translate(154 478)">
+      <path d="M24 10H92C104 10 114 20 114 32V42C114 54 104 64 92 64H20C9 64 0 55 0 44V30C0 19 10 10 22 10Z" fill="url(#trainGrad)" stroke="#5EEAD4" stroke-opacity="0.30" stroke-width="2"/>
+      <path d="M14 18H98C107 18 114 25 114 34V38H0V32C0 23 6 18 14 18Z" fill="#081018" opacity="0.74"/>
+      <rect x="18" y="28" width="20" height="10" rx="5" fill="#0B1B22" opacity="0.92"/>
+      <rect x="44" y="28" width="20" height="10" rx="5" fill="#0B1B22" opacity="0.92"/>
+      <rect x="70" y="28" width="20" height="10" rx="5" fill="#0B1B22" opacity="0.92"/>
+      <rect x="18" y="44" width="18" height="8" rx="4" fill="#0D9488" opacity="0.88"/>
+      <rect x="78" y="44" width="18" height="8" rx="4" fill="#0D9488" opacity="0.88"/>
+      <circle cx="24" cy="50" r="4.3" fill="#E6FFFB"/>
+      <circle cx="90" cy="50" r="4.3" fill="#E6FFFB"/>
+      <circle cx="58" cy="15" r="4.4" fill="#5EEAD4"/>
+    </g>
+  </g>
+
+  <circle cx="512" cy="544" r="60" fill="none" stroke="#14B8A6" stroke-opacity="0.16" stroke-width="4"/>
+</svg>

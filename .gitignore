@@ -1,0 +1,110 @@
+# === Android build artifacts ===
+android/.gradle/
+android/app/build/
+android/build/
+android/captures/
+android/local.properties
+*.apk
+*.aab
+
+# === Temp / system junk ===
+*.tmp
+*.tmp.*
+~DF*.TMP
+~nsu.tmp/
+_TMP*
+{*}/
+{*}*
+*.aamdownload
+*.rustdesk
+*.ses
+adb.log
+
+# === Adobe junk ===
+Adobe/
+AdobeARM*.log
+adobegc.log
+AdobeIPCBroker*.log
+AdobeVulcan/
+acrobat_sbx/
+acrobat_distiller/
+Acrobat Distiller DC/
+Acrobat_*.log
+"Acrobat Distiller DC/"
+
+# === Other projects in the same parent ===
+cashpilot-app/
+cash_survival_*.png
+
+# === VirtualBox ===
+VirtualBox Dropped Files/
+
+# === Wilcom ===
+Wilcom/
+
+# === Wondershare ===
+Wondershare/
+
+# === AndroidEmulator ===
+AndroidEmulator/
+avd/
+
+# === Windows SDK installer logs ===
+windowssdk/
+
+# === WinGet cache ===
+WinGet/
+
+# === uv / pip lock files ===
+uv-*.lock
+
+# === Tauri ===
+.tauri/
+
+# === tmp directories ===
+tmp.*/
+.tmp*/
+_tmp*/
+_tmp*/
+
+# === Node REPL / Hermes temp ===
+.tmp*/
+.tsx-*/
+
+# === Visual Studio / misc Windows ===
+TWAIN.LOG
+Twain*.Mtx
+Twunk*.MTX
+vswhere.exe
+upgrade_sensors
+
+# === OneDrive / Office temp ===
+- OProcSessId.dat
+
+# === vscode / codeium ===
+unleash-*.json
+
+# === Screenshots ===
+ktmb_emu_screenshot*.png
+ktmb_screenshot*.png
+
+# === AI-generated design mockups (not source code) ===
+Firefly*/
+
+# === Old extracted archives ===
+_extracted_bundle/
+
+# === Duplicate / experimental root files ===
+*.zip
+gtfs-realtime.proto
+hermes_*.html
+_*.html
+ktmb-actual-android-phone-preview.html
+ktmb-android-aesthetic-standalone.html
+ktmb_*.zip
+
+# === hermes tmp ===
+.hermes/desktop-attachments/
+
+# === git itself ===
+.git/

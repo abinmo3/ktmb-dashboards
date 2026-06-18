@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KTM Komuter – Notion Embed</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body class="embed">
+  <div class="page">
+    <section class="panel card">
+      <div class="form-row">
+        <div>
+          <label for="service">Service</label>
+          <select id="service">
+            <option value="komuter">Komuter (Klang Valley)</option>
+            <option value="komuter_utara">Komuter Utara (North)</option>
+          </select>
+        </div>
+        <div>
+          <label for="origin">Origin</label>
+          <select id="origin"></select>
+        </div>
+        <div>
+          <label for="destination">Destination</label>
+          <select id="destination" disabled></select>
+        </div>
+      </div>
+
+      <div class="meta" style="margin-top: var(--space-3);">
+        <div id="meta">Loading…</div>
+        <div id="live">Live trains: …</div>
+      </div>
+      <div id="windowHint" class="muted" style="font-size:0.8rem;margin-top: var(--space-2);"></div>
+
+      <div class="grid grid-2" style="margin-top: var(--space-4);">
+        <div class="box">
+          <div class="title">Latest day suggestion</div>
+          <div class="line" id="latestBest">Best: –</div>
+          <div class="line" id="latestAvoid">Avoid: –</div>
+          <div class="hint">Based on the latest available ridership day (not real-time crowd).</div>
+        </div>
+
+        <div class="box">
+          <div class="title">Typical (24 months) suggestion</div>
+          <div class="line" id="histBest">Best: –</div>
+          <div class="line" id="histAvoid">Avoid: –</div>
+          <div class="hint" id="histHint">Based on last 24 months hourly pattern (needs baseline_730).</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.4.0/dist/protobuf.min.js"></script>
+  <script src="./reco.js"></script>
+  <script src="./ui.js"></script>
+  <script>
+    (function applyEmbedParams(){
+      const params = new URLSearchParams(window.location.search);
+      const originParam = params.get("origin");
+      const destinationParam = params.get("destination");
+      const windowParam = params.get("window");
+      const embedParam = params.get("embed");
+
+      if (embedParam === "1") {
+        document.body.classList.add("embed");
+      }
+
+      const windowHint = document.getElementById("windowHint");
+      if (windowParam && windowHint) {
+        windowHint.textContent = `Requested window: ${windowParam}`;
+      }
+
+      function matchOption(selectEl, value){
+        if (!value) return null;
+        const target = value.toLowerCase();
+        return Array.from(selectEl.options).find(opt => opt.value.toLowerCase() === target) || null;
+      }
+
+      function setSelect(selectEl, value){
+        const match = matchOption(selectEl, value);
+        if (!match) return false;
+        selectEl.value = match.value;
+        selectEl.dispatchEvent(new Event("change", { bubbles: true }));
+        return true;
+      }
+
+      function waitForOptions(selectEl){
+        return new Promise(resolve => {
+          const start = Date.now();
+          const tick = () => {
+            if (selectEl.options.length > 1) return resolve();
+            if (Date.now() - start > 5000) return resolve();
+            setTimeout(tick, 100);
+          };
+          tick();
+        });
+      }
+
+      (async () => {
+        const originEl = document.getElementById("origin");
+        const destEl = document.getElementById("destination");
+        if (!originEl || !destEl) return;
+
+        if (originParam) {
+          await waitForOptions(originEl);
+          const appliedOrigin = setSelect(originEl, originParam);
+          if (appliedOrigin && destinationParam) {
+            await waitForOptions(destEl);
+            setSelect(destEl, destinationParam);
+          }
+        }
+      })();
+    })();
+  </script>
+</body>
+</html>

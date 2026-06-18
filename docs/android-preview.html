@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>KTMB Crowd & Trend - Android Preview</title>
+  <link rel="stylesheet" href="./android-preview.css" />
+</head>
+<body>
+  <div class="backdrop backdrop-a"></div>
+  <div class="backdrop backdrop-b"></div>
+
+  <main class="stage">
+    <header class="intro">
+      <span class="eyebrow">Android UI/UX concept</span>
+      <h1>KTMB Crowd & Trend</h1>
+      <p>Mobile-first redesign for commute planning, live tracking, station browsing, and crowd reports.</p>
+    </header>
+
+    <section class="device" aria-label="Android app preview">
+      <div class="status-bar">
+        <div class="status-time" id="statusTime">9:41</div>
+        <div class="status-icons" aria-hidden="true">
+          <span class="signal"></span>
+          <span class="wifi"></span>
+          <span class="battery"></span>
+        </div>
+      </div>
+
+      <header class="app-bar">
+        <div>
+          <div class="app-title" id="screenTitle">Home</div>
+          <div class="app-subtitle" id="screenSubtitle">Android concept preview</div>
+        </div>
+        <div class="app-actions">
+          <button class="icon-button" type="button" data-jump="more" aria-label="Open reports and guides">
+            <span data-icon="report"></span>
+          </button>
+          <div class="avatar" aria-hidden="true">KT</div>
+        </div>
+      </header>
+
+      <div class="service-switch" role="tablist" aria-label="Service switch">
+        <button class="segmented is-active" type="button" data-service="komuter">Komuter</button>
+        <button class="segmented" type="button" data-service="komuter_utara">Komuter Utara</button>
+      </div>
+
+      <div class="viewport">
+        <section class="screen is-active" data-screen="home" aria-label="Home screen">
+          <article class="hero-card">
+            <div class="hero-copy">
+              <span class="surface-chip">Plan smarter rides</span>
+              <h2>Live network context for your next KTM Komuter trip.</h2>
+              <p>Historical ridership, live train positions, and community reports in one mobile view.</p>
+              <div class="hero-actions">
+                <button class="primary-button" type="button" data-jump="forecast">Check crowd forecast</button>
+                <button class="ghost-button" type="button" data-jump="live">Open live map</button>
+              </div>
+            </div>
+            <div class="hero-art" aria-hidden="true" id="heroArt"></div>
+          </article>
+
+          <section class="metric-grid">
+            <article class="metric-card">
+              <span class="metric-label">Latest data</span>
+              <strong id="homeLatestDate">Loading...</strong>
+              <span class="metric-note">Ridership snapshot from the current service</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Live trains</span>
+              <strong id="homeLiveCount">--</strong>
+              <span class="metric-note" id="homeLiveNote">Feed refresh in progress</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Best window</span>
+              <strong id="homeBestWindow">--</strong>
+              <span class="metric-note" id="homeRouteLabel">Selecting a route...</span>
+            </article>
+          </section>
+
+          <section class="section-block">
+            <div class="section-head">
+              <div>
+                <span class="section-kicker">Shortcuts</span>
+                <h3>Quick actions</h3>
+              </div>
+              <button class="text-button" type="button" data-jump="stations">Station directory</button>
+            </div>
+            <div class="shortcut-grid">
+              <button class="shortcut-card" type="button" data-jump="forecast">
+                <span class="shortcut-icon" data-icon="forecast"></span>
+                <strong>Crowd Forecast</strong>
+                <span>Find lower-density hours before you travel.</span>
+              </button>
+              <button class="shortcut-card" type="button" data-jump="live">
+                <span class="shortcut-icon" data-icon="live"></span>
+                <strong>Live Map</strong>
+                <span>See active trains and service coverage.</span>
+              </button>
+              <button class="shortcut-card" type="button" data-jump="stations">
+                <span class="shortcut-icon" data-icon="stations"></span>
+                <strong>Stations</strong>
+                <span>Search hubs by name or state.</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="section-block">
+            <div class="section-head">
+              <div>
+                <span class="section-kicker">Popular</span>
+                <h3>Stations people check most</h3>
+              </div>
+              <span class="section-badge" id="homeServiceBadge">Komuter Klang Valley</span>
+            </div>
+            <div class="station-strip" id="homeStationStrip"></div>
+          </section>
+        </section>
+
+        <section class="screen" data-screen="forecast" aria-label="Forecast screen">
+          <section class="panel-card">
+            <div class="section-head tight">
+              <div>
+                <span class="section-kicker">Crowd forecast</span>
+                <h3>Choose a route</h3>
+              </div>
+              <button class="text-button" type="button" data-jump="home">Back home</button>
+            </div>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>Service</span>
+                <select id="forecastService"></select>
+              </label>
+              <label class="field">
+                <span>Origin</span>
+                <select id="forecastOrigin"></select>
+              </label>
+              <div class="swap-wrap">
+                <button class="swap-button" type="button" id="swapRoute" aria-label="Swap origin and destination">
+                  <span data-icon="swap"></span>
+                </button>
+              </div>
+              <label class="field">
+                <span>Destination</span>
+                <select id="forecastDestination"></select>
+              </label>
+            </div>
+
+            <div class="route-summary">
+              <div>
+                <span class="route-label">Selected route</span>
+                <strong id="forecastRoute">Loading...</strong>
+              </div>
+              <div class="route-subline" id="forecastMeta">Latest ridership date pending</div>
+            </div>
+          </section>
+
+          <section class="panel-card">
+            <div class="section-head tight">
+              <div>
+                <span class="section-kicker">By hour</span>
+                <h3>Latest-day crowd pulse</h3>
+              </div>
+              <div class="pill-group" role="tablist" aria-label="Forecast view">
+                <button class="pill is-active" type="button" data-forecast-mode="latest">Latest</button>
+                <button class="pill" type="button" data-forecast-mode="typical">Typical 24m</button>
+              </div>
+            </div>
+
+            <div class="heatmap-shell">
+              <div class="heatmap" id="forecastHeatmap" aria-label="Crowd by hour chart"></div>
+              <div class="heatmap-axis">
+                <span>00</span><span>06</span><span>12</span><span>18</span><span>24</span>
+              </div>
+            </div>
+
+            <div class="legend">
+              <span><i class="swatch low"></i> Low</span>
+              <span><i class="swatch mid"></i> Mixed</span>
+              <span><i class="swatch high"></i> Busy</span>
+              <span><i class="swatch packed"></i> Packed</span>
+            </div>
+          </section>
+
+          <section class="dual-grid">
+            <article class="insight-card">
+              <span class="metric-label">Best boarding windows</span>
+              <strong id="forecastBest">--</strong>
+              <span class="metric-note">Lower density slots picked from the selected series</span>
+            </article>
+            <article class="insight-card caution">
+              <span class="metric-label">Avoid if possible</span>
+              <strong id="forecastAvoid">--</strong>
+              <span class="metric-note">High-pressure periods where standing is more likely</span>
+            </article>
+          </section>
+
+          <article class="inline-note" id="forecastNote">
+            Forecast based on historical ridership and community reports. Not an official KTM count.
+          </article>
+        </section>
+
+        <section class="screen" data-screen="live" aria-label="Live map screen">
+          <section class="panel-card">
+            <div class="section-head tight">
+              <div>
+                <span class="section-kicker">Live map</span>
+                <h3>Route + train positions</h3>
+              </div>
+              <button class="text-button" type="button" data-jump="forecast">Open forecast</button>
+            </div>
+
+            <div class="live-map" id="liveMapArt" aria-hidden="true"></div>
+
+            <div class="live-stats">
+              <article class="live-stat">
+                <span class="metric-label">Active vehicles</span>
+                <strong id="liveCount">--</strong>
+              </article>
+              <article class="live-stat">
+                <span class="metric-label">Coverage</span>
+                <strong id="liveCoverage">--</strong>
+              </article>
+              <article class="live-stat">
+                <span class="metric-label">Updated</span>
+                <strong id="liveUpdated">--</strong>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel-card">
+            <div class="section-head tight">
+              <div>
+                <span class="section-kicker">Feed</span>
+                <h3>Recent train snapshots</h3>
+              </div>
+              <span class="section-badge" id="liveRefreshBadge">Refreshing every 30s</span>
+            </div>
+            <div class="train-list" id="liveTrainList"></div>
+          </section>
+
+          <article class="inline-note">
+            Live positions come from the GTFS-realtime feed through the existing proxy, with a mobile-friendly summary layer.
+          </article>
+        </section>
+
+        <section class="screen" data-screen="stations" aria-label="Stations screen">
+          <section class="panel-card">
+            <div class="section-head tight">
+              <div>
+                <span class="section-kicker">Stations</span>
+                <h3>Search the network</h3>
+              </div>
+              <button class="text-button" type="button" data-jump="more">Report crowd</button>
+            </div>
+
+            <label class="search-field">
+              <span data-icon="search"></span>
+              <input id="stationSearch" type="search" placeholder="Search station or state" />
+            </label>
+
+            <div class="station-detail" id="stationDetail"></div>
+          </section>
+
+          <section class="panel-card">
+            <div class="section-head tight">
+              <div>
+                <span class="section-kicker">Browse</span>
+                <h3>Station directory</h3>
+              </div>
+              <span class="section-badge" id="stationCountBadge">0 stations</span>
+            </div>
+            <div class="group-list" id="stationGroups"></div>
+          </section>
+        </section>
+
+        <section class="screen" data-screen="more" aria-label="More screen">
+          <section class="panel-card">
+            <div class="section-head tight">
+              <div>
+                <span class="section-kicker">Submit report</span>
+                <h3>Share a crowd update</h3>
+              </div>
+              <span class="section-badge">Saved locally</span>
+            </div>
+
+            <form id="reportForm" class="report-form">
+              <label class="field">
+                <span>Station</span>
+                <input id="reportStation" name="station" type="text" placeholder="e.g. KL Sentral" required />
+              </label>
+
+              <div class="field">
+                <span>Crowd level</span>
+                <div class="chip-row" id="crowdLevels" role="radiogroup" aria-label="Crowd level">
+                  <button class="pill is-active" type="button" data-level="Low">Low</button>
+                  <button class="pill" type="button" data-level="Moderate">Moderate</button>
+                  <button class="pill" type="button" data-level="Busy">Busy</button>
+                  <button class="pill" type="button" data-level="Packed">Packed</button>
+                </div>
+                <input id="reportLevel" name="level" type="hidden" value="Low" />
+              </div>
+
+              <label class="field">
+                <span>Notes</span>
+                <textarea id="reportNotes" name="notes" placeholder="Optional context: platform, line, time"></textarea>
+              </label>
+
+              <button class="primary-button wide" type="submit">Save report locally</button>
+            </form>
+          </section>
+
+          <section class="panel-card">
+            <div class="section-head tight">
+              <div>
+                <span class="section-kicker">Recent</span>
+                <h3>Saved crowd reports</h3>
+              </div>
+              <span class="section-badge" id="reportCountBadge">0 saved</span>
+            </div>
+            <div class="report-list" id="reportList"></div>
+          </section>
+
+          <section class="panel-card">
+            <div class="section-head tight">
+              <div>
+                <span class="section-kicker">Guides</span>
+                <h3>Quick help</h3>
+              </div>
+              <button class="text-button" type="button" data-jump="home">Back home</button>
+            </div>
+            <div class="guide-list" id="guideList"></div>
+          </section>
+
+          <article class="inline-note" id="moreMeta">
+            Data source: data.gov.my + GTFS. Use for planning only, not as an official KTM service.
+          </article>
+        </section>
+      </div>
+
+      <nav class="bottom-nav" aria-label="App navigation">
+        <button class="nav-item is-active" type="button" data-screen-target="home">
+          <span class="nav-icon" data-icon="home"></span>
+          <span>Home</span>
+        </button>
+        <button class="nav-item" type="button" data-screen-target="forecast">
+          <span class="nav-icon" data-icon="forecast"></span>
+          <span>Forecast</span>
+        </button>
+        <button class="nav-item" type="button" data-screen-target="live">
+          <span class="nav-icon" data-icon="live"></span>
+          <span>Live</span>
+        </button>
+        <button class="nav-item" type="button" data-screen-target="stations">
+          <span class="nav-icon" data-icon="stations"></span>
+          <span>Stations</span>
+        </button>
+        <button class="nav-item" type="button" data-screen-target="more">
+          <span class="nav-icon" data-icon="more"></span>
+          <span>More</span>
+        </button>
+      </nav>
+
+      <div class="gesture-bar" aria-hidden="true"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.4.0/dist/protobuf.min.js"></script>
+  <script src="./android-preview.js"></script>
+</body>
+</html>

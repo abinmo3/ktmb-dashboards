@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KTM Komuter – Crowd Forecast</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="page">
+    <nav class="nav">
+      <a class="nav-brand" href="./index.html">KTMB Crowd &amp; Trend</a>
+      <div class="nav-links">
+        <a href="./index.html">Home</a>
+        <a href="./stations.html">Stations</a>
+        <a class="active" href="./reco.html">Crowd Forecast</a>
+        <a href="./live-map.html">Live Map</a>
+        <a href="./trend.html">Trend Lab</a>
+        <a href="./data.html">Data &amp; Method</a>
+        <a href="./guides.html">Guides</a>
+        <a href="./submit.html">Submit Report</a>
+        <a href="./disclaimer.html">Disclaimer</a>
+      </div>
+    </nav>
+
+    <section class="section">
+      <div class="panel card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap: var(--space-4);flex-wrap: wrap;">
+          <div>
+            <h2 style="margin:0;">Crowd forecast</h2>
+            <p class="muted" style="margin: var(--space-1) 0 0;">Select a service, origin, and destination to receive the best &amp; avoid windows.</p>
+          </div>
+          <a class="btn btn-soft" href="./embed.html">Open embed view</a>
+        </div>
+        <div class="section-divider"></div>
+        <div class="form-row">
+          <div>
+            <label for="service">Service</label>
+            <select id="service">
+              <option value="komuter">Komuter (Klang Valley)</option>
+              <option value="komuter_utara">Komuter Utara (North)</option>
+            </select>
+          </div>
+          <div>
+            <label for="origin">Origin</label>
+            <select id="origin"></select>
+          </div>
+          <div>
+            <label for="destination">Destination</label>
+            <select id="destination" disabled></select>
+          </div>
+        </div>
+
+        <div class="meta" style="margin-top: var(--space-3);">
+          <div id="meta">Loading…</div>
+          <div id="live">Live trains: …</div>
+        </div>
+
+        <div class="grid grid-2" style="margin-top: var(--space-4);">
+          <div class="box">
+            <div class="title">Latest day suggestion</div>
+            <div class="line" id="latestBest">Best: –</div>
+            <div class="line" id="latestAvoid">Avoid: –</div>
+            <div class="hint">Based on the latest available ridership day (not real-time crowd).</div>
+          </div>
+
+          <div class="box">
+            <div class="title">Typical (24 months) suggestion</div>
+            <div class="line" id="histBest">Best: –</div>
+            <div class="line" id="histAvoid">Avoid: –</div>
+            <div class="hint" id="histHint">Based on last 24 months hourly pattern (needs baseline_730).</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.4.0/dist/protobuf.min.js"></script>
+  <script src="./reco.js"></script>
+  <script src="./ui.js"></script>
+</body>
+</html>

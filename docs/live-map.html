@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KTM Komuter – Live Map</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+  <div class="page">
+    <nav class="nav">
+      <a class="nav-brand" href="./index.html">KTMB Crowd &amp; Trend</a>
+      <div class="nav-links">
+        <a href="./index.html">Home</a>
+        <a href="./stations.html">Stations</a>
+        <a href="./reco.html">Crowd Forecast</a>
+        <a class="active" href="./live-map.html">Live Map</a>
+        <a href="./trend.html">Trend Lab</a>
+        <a href="./data.html">Data &amp; Method</a>
+        <a href="./guides.html">Guides</a>
+        <a href="./submit.html">Submit Report</a>
+        <a href="./disclaimer.html">Disclaimer</a>
+      </div>
+    </nav>
+
+    <section class="section">
+      <div class="panel card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap: var(--space-4);flex-wrap: wrap;">
+          <div>
+            <h2 style="margin:0;">Live map</h2>
+            <p class="muted" style="margin: var(--space-1) 0 0;">Visualize active train positions with route overlays and crowd estimates.</p>
+          </div>
+          <a class="btn btn-soft" href="./reco.html">Open crowd forecast</a>
+        </div>
+        <div class="section-divider"></div>
+        <div class="form-row">
+          <div>
+            <label for="service">Service</label>
+            <select id="service">
+              <option value="komuter">Komuter (Klang Valley)</option>
+              <option value="komuter_utara">Komuter Utara (North)</option>
+            </select>
+          </div>
+          <div>
+            <label for="origin">Origin</label>
+            <select id="origin"></select>
+          </div>
+          <div>
+            <label for="destination">Destination</label>
+            <select id="destination" disabled></select>
+          </div>
+        </div>
+
+        <div class="meta" style="margin-top: var(--space-3);">
+          <div id="meta">Loading data…</div>
+          <div id="live"></div>
+        </div>
+
+        <canvas id="heatmap" width="960" height="180"></canvas>
+
+        <div style="margin-top: var(--space-4);">
+          <details id="liveMapDetails" open class="details-card" aria-label="Live map">
+            <summary style="cursor:pointer;font-weight:600">Route + train positions</summary>
+            <div id="map" style="height:420px;margin-top:10px;border:1px solid var(--border);border-radius:12px"></div>
+          </details>
+        </div>
+
+        <div class="legend" style="margin-top: var(--space-3);">
+          <span>Low (likely seats)</span>
+          <span>Medium (mixed)</span>
+          <span>High (standing likely)</span>
+          <span>Very High (packed)</span>
+        </div>
+        <div id="picks"></div>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.4.0/dist/protobuf.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

@@ -9,7 +9,9 @@ import kotlinx.serialization.Serializable
 // ── Service type ──
 enum class ServiceType(val key: String, val label: String) {
     KOMUTER("komuter", "Komuter"),
-    KOMUTER_UTARA("komuter_utara", "Komuter Utara");
+    KOMUTER_UTARA("komuter_utara", "Komuter Utara"),
+    ETS("ets", "ETS"),
+    INTERCITY("intercity", "Intercity");
 
     companion object {
         fun fromKey(key: String): ServiceType =

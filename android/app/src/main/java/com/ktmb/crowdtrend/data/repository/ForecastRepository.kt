@@ -31,6 +31,7 @@ class ForecastRepository(private val context: Context) {
         val prefix = when (service) {
             ServiceType.KOMUTER -> "data/"
             ServiceType.KOMUTER_UTARA -> "data/komuter_utara/"
+            else -> "data/"
         }
 
         val dto: ByOriginJson = AssetJsonLoader.load(
@@ -61,6 +62,7 @@ class ForecastRepository(private val context: Context) {
         val prefix = when (service) {
             ServiceType.KOMUTER -> "data/"
             ServiceType.KOMUTER_UTARA -> "data/komuter_utara/"
+            else -> "data/"
         }
         AssetJsonLoader.load(context, "${prefix}meta.json")
     }

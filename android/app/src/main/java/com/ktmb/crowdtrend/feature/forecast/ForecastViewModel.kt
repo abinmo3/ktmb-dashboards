@@ -204,6 +204,7 @@ class ForecastViewModel(application: Application) : AndroidViewModel(application
         return when (service) {
             ServiceType.KOMUTER -> stations.firstOrNull { it.name == "KL Sentral" }
             ServiceType.KOMUTER_UTARA -> stations.firstOrNull { it.name == "Butterworth" }
+            else -> stations.firstOrNull { it.name == "KL Sentral" }
         } ?: stations.firstOrNull()
     }
 
@@ -211,6 +212,7 @@ class ForecastViewModel(application: Application) : AndroidViewModel(application
         return when (service) {
             ServiceType.KOMUTER -> available.firstOrNull { it.name == "Bandar Tasek Selatan" }
             ServiceType.KOMUTER_UTARA -> available.firstOrNull { it.name == "Alor Setar" }
+            else -> available.firstOrNull()
         } ?: available.firstOrNull()
     }
 

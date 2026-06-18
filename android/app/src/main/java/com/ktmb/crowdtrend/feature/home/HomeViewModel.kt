@@ -88,6 +88,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun onUseAsOrigin(name: String) { _uiState.update { it.copy(lastOrigin = name) } }
     fun onUseAsDestination(name: String) { _uiState.update { it.copy(lastDestination = name) } }
 
+    fun setService(service: ServiceType) {
+        viewModelScope.launch { prefs.setActiveService(service) }
+    }
+
     private fun loadFoundation(service: ServiceType) {
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {

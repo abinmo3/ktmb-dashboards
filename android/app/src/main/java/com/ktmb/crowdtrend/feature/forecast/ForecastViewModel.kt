@@ -193,8 +193,12 @@ class ForecastViewModel(application: Application) : AndroidViewModel(application
                     prefs.setLastRoute(origin.name, destination.name)
                 }
             } catch (e: Exception) {
+                val msg = if (e is java.io.IOException)
+                    "No forecast data available for this origin. Try switching services or selecting a different station."
+                else
+                    "Failed to load forecast: ${e.message}"
                 _uiState.update {
-                    it.copy(isLoading = false, forecast = null, error = "Failed to load forecast: ${e.message}")
+                    it.copy(isLoading = false, forecast = null, error = msg)
                 }
             }
         }

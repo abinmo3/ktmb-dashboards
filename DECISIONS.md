@@ -112,14 +112,74 @@
 - The data opportunities doc identifies this as high-impact deferred work
 **Trade-off:** 72 stations invisible; 739K ridership records unused; Jungle Railway feature deferred.
 
-## 10. No Git History Initialized
+## 10. Git History Initialized
 
-**Decision:** Project lives in OneDrive without git init.
-**Date:** 2026-06-14
-**Context:** Initial development was exploratory/experimental.
+**Decision:** Git repository initialized with full history on GitHub at `abinmo3/ktmb-dashboards`.
+**Date:** 2026-06-18
+**Context:** Project was previously in OneDrive without version control (see original Decision #10 below).
 **Rationale:**
-- Started as data exploration notebooks and HTML prototypes
-- OneDrive syncing provides basic version history
-- Project wasn't originally planned as a multi-developer project
-**Trade-off:** No branching, no PRs, no CI/CD beyond the data workflow; risk of unrecoverable changes.
-**Recommendation:** Initialize git when adding major features (Home Dashboard, ETS integration).
+- Enables proper version control, branching, and collaboration
+- Allows CI/CD via GitHub Actions
+- Public visibility encourages code quality
+- Protects against unrecoverable changes
+**Trade-off:** Public repo requires hygiene discipline (no secrets, clean commit history).
+**Previous decision (superseded 2026-06-18):** Project lived in OneDrive without git init. This was acceptable during exploratory phase but became a risk as the project matured.
+
+## 11. This Repo Is Now a Serious Public Project
+
+**Decision:** Treat `ktmb-dashboards` as a production-grade public repository with professional standards.
+**Date:** 2026-06-19
+**Rationale:**
+- Repository is public on GitHub — code and history visible to anyone
+- Project has real users and real data pipeline
+- Professional standards prevent embarrassing mistakes (secrets in commits, junk files, stale docs)
+**Impact:**
+- Control files (`.hermes.md`, `AGENTS.md`, `CURRENT-TASK.md`, `DECISIONS.md`) must be maintained
+- AI agents must read control files before making broad changes
+- Secrets must never be committed (checked in pre-commit review)
+- Generated/build artifacts must stay gitignored
+- Documentation must stay up-to-date
+**Status:** Active
+
+## 12. AI Agents Must Use Control Files Before Broad Changes
+
+**Decision:** Any AI coding agent (Hermes, Codex, Copilot, etc.) must read `AGENTS.md` and `.hermes.md` before making repo-wide changes.
+**Date:** 2026-06-19
+**Rationale:** Control files encode safety boundaries, conventions, and project knowledge that prevent agents from making destructive or incorrect changes.
+**Impact:** Reduces risk of accidental deletions, build breakage, and style violations.
+**Status:** Active
+
+## 13. Deletion Must Be Conservative
+
+**Decision:** Files are only deleted after categorization into safe (A), needs-confirmation (B), keep (C), and security-concern (D) groups. Only Group A gets deleted without human review.
+**Date:** 2026-06-19
+**Rationale:** Over-aggressive cleanup can break builds, remove valuable historical context, or delete files needed by other team members. A systematic approach prevents mistakes.
+**Impact:** Cleanup takes slightly longer but is safer.
+**Status:** Active
+
+## 14. Secrets Must Not Be Committed
+
+**Decision:** All commits are reviewed for secrets (API keys, tokens, passwords, credentials) before being pushed. Files that extract or contain credentials are never tracked.
+**Date:** 2026-06-19
+**Rationale:** Public repo means any committed secret is immediately exposed. `.gitignore` already covers common patterns; scripts that query credential managers (not store secrets) are acceptable.
+**Impact:** `.ps1` helper scripts that use `git credential-manager` must not be tracked unless they are confirmed free of hardcoded secrets.
+**Status:** Active
+
+## 15. Generated/Build Files Should Not Be Tracked
+
+**Decision:** All generated outputs (build artifacts, data derived from parquet, AI-generated mockups, screenshots, ZIP archives) are gitignored and must not be committed.
+**Date:** 2026-06-19
+**Rationale:**
+- Generated files bloat the repo and create merge conflicts
+- They can be regenerated from sources
+- Tracking them creates a false sense of version control (changes are to the generator, not the artifact)
+**Impact:** `.gitignore` covers: `*.apk`, `*.aab`, build dirs, screenshots, ZIPs, Firefly images, extracted archives, root HTML mockups, temp files. `docs/data/` and `android/app/src/main/assets/data/` are the exception — they ARE tracked because they are the app's bundled data.
+**Status:** Active
+
+## 16. The Android App Must Remain Buildable
+
+**Decision:** No change that breaks the Android Gradle build is acceptable. After any change touching `android/`, `assembleDebug` must be verified.
+**Date:** 2026-06-19
+**Rationale:** The Android app is the primary deliverable. A broken build blocks all other work.
+**Impact:** Pre-commit checklist includes build verification; deletions of files referenced by Gradle are prohibited.
+**Status:** Active

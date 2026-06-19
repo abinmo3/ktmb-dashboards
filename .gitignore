@@ -106,8 +106,12 @@ ktmb-actual-android-phone-preview.html
 ktmb-android-aesthetic-standalone.html
 ktmb_*.zip
 
-# === hermes tmp ===
-.hermes/desktop-attachments/
+# === Hermes runtime files (never commit — transient attachments, screenshots, logs) ===
+.hermes/
+
+# === Local/developer helper scripts (machine-specific paths, auth-adjacent) ===
+_build_apk.ps1
+_get_token.ps1
 
 # === git itself ===
 .git/

@@ -24,6 +24,7 @@ android {
 
         // GTFS-realtime proxy — no auth required, public endpoint
         buildConfigField("String", "GTFS_PROXY_URL", "\"https://ktmb-gtfs-proxy.abinmo3.workers.dev/\"")
+        buildConfigField("String", "DATA_BASE_URL", "\"https://abinmo3.github.io/ktmb-dashboards/data/\"")
     }
 
     buildTypes {

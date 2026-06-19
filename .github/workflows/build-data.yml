@@ -3,10 +3,12 @@ name: Build crowd data
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 20 * * *"  # 04:00 Malaysia time (UTC+8)
+    - cron: "23 6,8,10 * * *"  # 14:23, 16:23, 18:23 Malaysia time (UTC+8)
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: build-crowd-data
@@ -15,6 +17,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,3 +51,40 @@ jobs:
 
           git pull --rebase origin main
           git push origin main
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify deployed data endpoints
+        run: |
+          set -euo pipefail
+          page_url="${{ steps.deployment.outputs.page_url }}"
+          first_origin="$(find docs/data/by_origin -name '*.json' -print -quit | sed 's#^docs/##')"
+          if [ -z "$first_origin" ]; then
+            echo "No by_origin JSON files were generated" >&2
+            exit 1
+          fi
+          for path in "data/meta.json" "data/stations.json" "$first_origin"; do
+            url="${page_url%/}/$path"
+            echo "Verifying $url"
+            for attempt in 1 2 3 4 5 6; do
+              status="$(curl -L -s -o /dev/null -w '%{http_code}' "$url" || true)"
+              if [ "$status" = "200" ]; then
+                break
+              fi
+              if [ "$attempt" = "6" ]; then
+                echo "Expected HTTP 200 from $url, got $status" >&2
+                exit 1
+              fi
+              sleep 10
+            done
+          done

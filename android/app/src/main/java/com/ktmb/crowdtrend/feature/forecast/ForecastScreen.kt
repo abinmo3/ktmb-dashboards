@@ -213,6 +213,7 @@ fun ForecastScreen(
                 latestDate = state.freshness.latestDate,
                 daysBehind = state.freshness.daysBehind,
                 isStale = state.freshness.isStale,
+                sourceInfo = state.forecastSourceInfo,
             )
         }
 

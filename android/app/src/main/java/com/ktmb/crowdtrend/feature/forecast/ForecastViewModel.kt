@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ktmb.crowdtrend.core.model.*
+import com.ktmb.crowdtrend.core.util.AssetJsonLoader
+import com.ktmb.crowdtrend.core.util.DataSourceInfo
 import com.ktmb.crowdtrend.data.datastore.KtmbPreferences
 import com.ktmb.crowdtrend.data.repository.ForecastRepository
 import com.ktmb.crowdtrend.data.repository.StationRepository
@@ -26,6 +28,7 @@ data class ForecastUiState(
     val isSwapping: Boolean = false,
     val error: String? = null,
     val freshness: DataFreshness = DataFreshness.EMPTY,
+    val forecastSourceInfo: DataSourceInfo? = null,
 )
 
 enum class ForecastMode { LATEST, TYPICAL }
@@ -129,6 +132,7 @@ class ForecastViewModel(application: Application) : AndroidViewModel(application
         try {
             val stations = stationRepo.loadStations(service)
             val meta = forecastRepo.loadMeta(service)
+            val sourceInfo = AssetJsonLoader.sourceInfoFor("${dataPrefix(service)}meta.json")
 
             // Compute freshness
             val freshness = computeFreshness(meta)
@@ -154,6 +158,7 @@ class ForecastViewModel(application: Application) : AndroidViewModel(application
                     availableDestinations = available,
                     isLoading = false,
                     freshness = freshness,
+                    forecastSourceInfo = sourceInfo,
                 )
             }
 
@@ -218,6 +223,15 @@ class ForecastViewModel(application: Application) : AndroidViewModel(application
             ServiceType.KOMUTER_UTARA -> available.firstOrNull { it.name == "Alor Setar" }
             else -> available.firstOrNull()
         } ?: available.firstOrNull()
+    }
+
+    private fun dataPrefix(service: ServiceType): String {
+        return when (service) {
+            ServiceType.KOMUTER -> "data/"
+            ServiceType.KOMUTER_UTARA -> "data/komuter_utara/"
+            ServiceType.ETS -> "data/ets/"
+            ServiceType.INTERCITY -> "data/intercity/"
+        }
     }
 
     private fun computeFreshness(meta: MetaJson): DataFreshness {

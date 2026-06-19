@@ -1,14 +1,35 @@
 package com.ktmb.crowdtrend.core.util
 
 import android.content.Context
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.io.IOException
+import java.util.concurrent.ConcurrentHashMap
 
-/**
- * Reads and parses JSON files from Android assets.
- * All parsing errors surface as clear exceptions — no silent nulls.
- */
 object AssetJsonLoader {
+
+    @Volatile
+    private var remoteDataLoader: RemoteDataLoader? = null
+
+    @Volatile
+    private var latestInfo: DataSourceInfo? = null
+
+    private val sourceInfoByPath = ConcurrentHashMap<String, DataSourceInfo>()
+    private val refreshScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    fun configure(remoteDataLoader: RemoteDataLoader) {
+        this.remoteDataLoader = remoteDataLoader
+    }
+
+    fun lastSourceInfo(): DataSourceInfo? = latestInfo
+
+    fun sourceInfoFor(path: String): DataSourceInfo? {
+        val normalizedPath = path.trimStart('/')
+        return sourceInfoByPath[normalizedPath] ?: remoteDataLoader?.cachedInfo(normalizedPath)
+    }
 
     @PublishedApi
     internal val json = Json {
@@ -17,42 +38,101 @@ object AssetJsonLoader {
         coerceInputValues = true
     }
 
-    /**
-     * Read a text file from assets and decode it as [T].
-     *
-     * @param context  Android context for asset access.
-     * @param path     Asset path relative to assets/ (e.g. "data/stations.json").
-     * @return         Deserialized object of type [T].
-     * @throws IOException          if the asset file is missing or unreadable.
-     * @throws kotlinx.serialization.SerializationException  if JSON is malformed.
-     */
     inline fun <reified T> load(context: Context, path: String): T {
-        val raw = readAsset(context, path)
-        return json.decodeFromString(raw)
+        val raw = readRaw(context, path)
+        return runCatching { json.decodeFromString<T>(raw) }
+            .getOrElse { decodeError ->
+                val info = sourceInfoFor(path)
+                if (info?.freshnessState == FreshnessState.REMOTE_CACHED) {
+                    val bundled = readAsset(context, path)
+                    val fallbackInfo = staleInfo(path, decodeError.message)
+                    rememberSourceInfo(fallbackInfo)
+                    json.decodeFromString(bundled)
+                } else {
+                    throw decodeError
+                }
+            }
     }
 
-    /**
-     * Read a text file from assets and return the raw string.
-     * Useful for debugging or passing to external parsers.
-     */
-    fun readRaw(context: Context, path: String): String = readAsset(context, path)
+    fun readRaw(context: Context, path: String): String {
+        val loader = remoteDataLoader
+        val cached = loader?.readCached(path)
+        if (cached != null) {
+            rememberSourceInfo(cached.info)
+            refreshInBackground(loader, path, cached.info)
+            return cached.text
+        }
 
-    /**
-     * Read a text file from assets, returning null instead of throwing on missing files.
-     * Use this for optional data sources that may not exist in all service directories.
-     */
+        return try {
+            val bundled = readAsset(context, path)
+            val info = bundledInfo(path)
+            rememberSourceInfo(info)
+            if (loader != null) {
+                refreshInBackground(loader, path, info)
+            }
+            bundled
+        } catch (assetError: IOException) {
+            rememberSourceInfo(staleInfo(path, assetError.message))
+            throw assetError
+        }
+    }
+
     fun readRawOrNull(context: Context, path: String): String? {
         return try {
-            readAsset(context, path)
+            readRaw(context, path)
         } catch (_: IOException) {
             null
         }
     }
 
-    // ── Internal ──
-
     @PublishedApi
     internal fun readAsset(context: Context, path: String): String {
         return context.assets.open(path).bufferedReader().use { it.readText() }
     }
+
+    private fun refreshInBackground(
+        loader: RemoteDataLoader,
+        path: String,
+        previousInfo: DataSourceInfo?,
+    ) {
+        refreshScope.launch {
+            runCatching { loader.refresh(path) }
+                .onSuccess { rememberSourceInfo(it) }
+                .onFailure {
+                    val fallbackState = if (previousInfo?.freshnessState == FreshnessState.REMOTE_CACHED) {
+                        FreshnessState.REMOTE_CACHED
+                    } else {
+                        FreshnessState.ERROR_USING_STALE_DATA
+                    }
+                    rememberSourceInfo(
+                        previousInfo?.copy(
+                            freshnessState = fallbackState,
+                            warning = it.message,
+                        ) ?: staleInfo(path, it.message)
+                    )
+                }
+        }
+    }
+
+    @PublishedApi
+    internal fun rememberSourceInfo(info: DataSourceInfo) {
+        latestInfo = info
+        sourceInfoByPath[info.path] = info
+    }
+
+    @PublishedApi
+    internal fun bundledInfo(path: String, warning: String? = null): DataSourceInfo = DataSourceInfo(
+        freshnessState = FreshnessState.BUNDLED_FALLBACK,
+        path = path.trimStart('/'),
+        lastFetchTimeMillis = 0L,
+        warning = warning,
+    )
+
+    @PublishedApi
+    internal fun staleInfo(path: String, warning: String? = null): DataSourceInfo = DataSourceInfo(
+        freshnessState = FreshnessState.ERROR_USING_STALE_DATA,
+        path = path.trimStart('/'),
+        lastFetchTimeMillis = 0L,
+        warning = warning,
+    )
 }

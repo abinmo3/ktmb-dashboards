@@ -17,6 +17,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ktmb.crowdtrend.core.model.FeedState
 import com.ktmb.crowdtrend.core.model.RidershipFreshness
 import com.ktmb.crowdtrend.core.model.ServiceType
+import com.ktmb.crowdtrend.core.util.DataSourceInfo
+import com.ktmb.crowdtrend.core.util.FreshnessState
 import com.ktmb.crowdtrend.core.ui.components.*
 import com.ktmb.crowdtrend.ui.theme.*
 
@@ -84,14 +86,12 @@ fun SettingsScreen(vm: SettingsViewModel = viewModel()) {
 
                     // ── Forecast base ──
                     val meta = state.forecastMeta
+                    val sourceInfo = state.forecastSourceInfo
                     SourceFreshnessRow(
                         sourceName = "Forecast base",
-                        status = if (meta != null) "Available" else "Unavailable",
-                        detail = if (meta != null && meta.latestDate.isNotEmpty())
-                            "Latest: ${meta.latestDate} · ${meta.daysAvailable} days · ${meta.source}"
-                        else
-                            "No metadata loaded",
-                        isHealthy = meta != null,
+                        status = sourceInfo?.displayStatus ?: if (meta != null) "Available" else "Unavailable",
+                        detail = forecastSourceDetail(meta, sourceInfo),
+                        isHealthy = meta != null && sourceInfo?.freshnessState != FreshnessState.ERROR_USING_STALE_DATA,
                     )
                 }
             }
@@ -181,4 +181,19 @@ private fun feedStateDescription(state: FeedState): String = when (state) {
     FeedState.LIVE_EMPTY -> "Feed reachable but no vehicles currently reported"
     FeedState.FEED_ERROR -> "Feed is currently unavailable"
     FeedState.STALE -> "Last vehicle data is older than 2 minutes"
+}
+
+private fun forecastSourceDetail(
+    meta: com.ktmb.crowdtrend.core.model.MetaJson?,
+    sourceInfo: DataSourceInfo?,
+): String {
+    if (meta == null || meta.latestDate.isEmpty()) return "No metadata loaded"
+    val base = "Latest: ${meta.latestDate} · ${meta.daysAvailable} days · ${meta.source}"
+    return when (sourceInfo?.freshnessState) {
+        FreshnessState.REMOTE_LIVE -> "$base · remote refreshed"
+        FreshnessState.REMOTE_CACHED -> "$base · offline cache"
+        FreshnessState.BUNDLED_FALLBACK -> "$base · bundled APK data"
+        FreshnessState.ERROR_USING_STALE_DATA -> "$base · remote failed, using offline data"
+        null -> base
+    }
 }

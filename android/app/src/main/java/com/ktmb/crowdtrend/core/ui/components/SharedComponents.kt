@@ -17,7 +17,10 @@ import androidx.compose.ui.unit.dp
 import com.ktmb.crowdtrend.core.model.RidershipFreshness
 import com.ktmb.crowdtrend.core.model.RidershipStatus
 import com.ktmb.crowdtrend.core.model.ServiceType
+import com.ktmb.crowdtrend.core.util.DataSourceInfo
+import com.ktmb.crowdtrend.core.util.FreshnessState
 import com.ktmb.crowdtrend.ui.theme.*
+import java.util.concurrent.TimeUnit
 
 // ═══════════════════════════════════════════
 // Service Switch
@@ -202,6 +205,7 @@ fun DataFreshnessLabel(
     daysBehind: Int,
     isStale: Boolean,
     modifier: Modifier = Modifier,
+    sourceInfo: DataSourceInfo? = null,
 ) {
     val (bgColor, textColor, label) = if (isStale) {
         Triple(
@@ -216,11 +220,13 @@ fun DataFreshnessLabel(
             "Latest ridership: $latestDate · Updated within 2 weeks"
         )
     }
+    val sourceLabel = sourceInfo?.let { dataSourceLabel(it, latestDate, daysBehind) } ?: label
+    val isSourceError = sourceInfo?.freshnessState == FreshnessState.ERROR_USING_STALE_DATA
 
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        color = bgColor,
+        color = if (isSourceError) MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f) else bgColor,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
@@ -229,16 +235,37 @@ fun DataFreshnessLabel(
             Surface(
                 modifier = Modifier.size(8.dp),
                 shape = RoundedCornerShape(4.dp),
-                color = if (isStale) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                color = if (isStale || isSourceError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
             ) {}
             Spacer(Modifier.width(8.dp))
             Text(
-                label,
+                sourceLabel,
                 style = MaterialTheme.typography.labelMedium,
-                color = textColor,
+                color = if (isSourceError) MaterialTheme.colorScheme.onErrorContainer else textColor,
                 fontWeight = FontWeight.Medium,
             )
         }
+    }
+}
+
+private fun dataSourceLabel(sourceInfo: DataSourceInfo, latestDate: String, daysBehind: Int): String {
+    return when (sourceInfo.freshnessState) {
+        FreshnessState.REMOTE_LIVE -> {
+            if (daysBehind == 0) "Live - Updated today" else "Live - Latest ridership: $latestDate"
+        }
+        FreshnessState.REMOTE_CACHED -> "Cached - Downloaded ${downloadAge(sourceInfo.lastFetchTimeMillis)}"
+        FreshnessState.BUNDLED_FALLBACK -> "Bundled fallback - Data may be stale"
+        FreshnessState.ERROR_USING_STALE_DATA -> "Remote failed - Using offline data"
+    }
+}
+
+private fun downloadAge(lastFetchTimeMillis: Long): String {
+    if (lastFetchTimeMillis <= 0L) return "previously"
+    val ageDays = TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - lastFetchTimeMillis).coerceAtLeast(0)
+    return when (ageDays) {
+        0L -> "today"
+        1L -> "yesterday"
+        else -> "$ageDays days ago"
     }
 }
 

@@ -1,1 +1,1 @@
-{"service": "intercity", "latest_date": "2026-09-01", "earliest_date": "2026-01-01", "days_available": 244, "generated_at": "2026-09-02 11:27 UTC", "source": "https://storage.data.gov.my/transportation/ktmb/intercity_2026.parquet"}
+{"service": "intercity", "latest_date": "2026-09-02", "earliest_date": "2026-01-01", "days_available": 245, "generated_at": "2026-09-03 11:23 UTC", "source": "https://storage.data.gov.my/transportation/ktmb/intercity_2026.parquet"}
